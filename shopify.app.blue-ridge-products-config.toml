@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "6c700961573184c967385593937daa3b"
+application_url = "https://interpreted-kill-criminal-prisoners.trycloudflare.com"
+embedded = true
+name = "Blue Ridge Products config"
+handle = "blue-ridge-products-config"
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "blue-ridge-sign.myshopify.com"
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2024-10"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products, read_products, write_files, read_files, write_orders, read_orders, write_themes, read_themes"
+
+[auth]
+redirect_urls = [
+  "https://interpreted-kill-criminal-prisoners.trycloudflare.com/auth/callback",
+  "https://interpreted-kill-criminal-prisoners.trycloudflare.com/auth/shopify/callback",
+  "https://interpreted-kill-criminal-prisoners.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
