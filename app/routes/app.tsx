@@ -27,6 +27,8 @@ export default function App() {
         </Link>
         <Link to="/app/additional">Dashboard</Link>
         <Link to="/app/allProducts">Product Options</Link>
+        <Link to="/app/upload">Upload Image</Link>
+        <Link to="/app/overlay">Generate Color Image</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

@@ -182,7 +182,7 @@ export default function ProductsPage() {
               submit
               disabled={isSubmitting}
             >
-              {isConfigured ? "Deactivate" : "Activate"}
+              {isConfigured ? "Deactivate" : "Activated"}
             </Button>
           </Form>
         </div>

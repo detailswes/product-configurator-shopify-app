@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "2cfed91f33894ab1ddd58554811acc96"
-application_url = "https://players-week-automatic-presented.trycloudflare.com"
+application_url = "https://glucose-reproductive-handling-thread.trycloudflare.com"
 embedded = true
-name = "shopify-product-configurator"
+name = "product-app"
 handle = "shopify-product-configurator-51"
 
 [webhooks]

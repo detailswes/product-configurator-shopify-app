@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f8eba560d30f1501f1ce92dbf648db5e"
+application_url = "https://compatibility-headset-rugs-valid.trycloudflare.com"
+embedded = true
+name = "product app"
+handle = "product-app-109"
+
+[build]
+dev_store_url = "masterchoclate.myshopify.com"
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-01"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = ""
+
+[auth]
+redirect_urls = [
+  "https://compatibility-headset-rugs-valid.trycloudflare.com/auth/callback",
+  "https://compatibility-headset-rugs-valid.trycloudflare.com/auth/shopify/callback",
+  "https://compatibility-headset-rugs-valid.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
