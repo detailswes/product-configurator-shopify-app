@@ -36,7 +36,7 @@ export default function UploadPage() {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    submit(formData, { method: "post", action: "/upload" });
+    submit(formData, { method: "post",});
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +111,6 @@ export default function UploadPage() {
         )}
 
         <button 
-          type="submit"
           disabled={isUploading || !selectedFile}
           className={`px-4 py-2 rounded transition ${
             isUploading || !selectedFile

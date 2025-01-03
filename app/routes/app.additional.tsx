@@ -1,65 +1,33 @@
 import {
-  Box,
-  Card,
-  Layout,
-  Link,
-  List,
   Page,
+  Layout,
+  Card,
   Text,
   BlockStack,
+  List,
+  Link,
+  Icon,
 } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+import {
+  ProductIcon,
+  SettingsIcon,
+  XCircleIcon,
+} from "@shopify/polaris-icons";
 
-export default function AdditionalPage() {
+export default function ProductConfiguratorDashboard() {
   return (
-    <Page>
-      <TitleBar title="Additional page" />
+    <Page title="Product Configurator Dashboard">
       <Layout>
         <Layout.Section>
-          <Card>
-            <BlockStack gap="300">
-              <Text as="p" variant="bodyMd">
-                The app template comes with an additional page which
-                demonstrates how to create multiple pages within app navigation
-                using{" "}
-                <Link
-                  url="https://shopify.dev/docs/apps/tools/app-bridge"
-                  target="_blank"
-                  removeUnderline
-                >
-                  App Bridge
-                </Link>
-                .
-              </Text>
-              <Text as="p" variant="bodyMd">
-                To create your own page and have it show up in the app
-                navigation, add a page inside <Code>app/routes</Code>, and a
-                link to it in the <Code>&lt;NavMenu&gt;</Code> component found
-                in <Code>app/routes/app.jsx</Code>.
-              </Text>
-            </BlockStack>
+          <Card title="Welcome to Product Configurator" sectioned>
+            <Text as="p" variant="bodyMd">
+              This application allows merchants to customize and configure their 
+              products with features like uploading images, selecting colors, 
+              and more. Navigate through the app to explore its functionality.
+            </Text>
           </Card>
         </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <Card>
-            <BlockStack gap="200">
-              <Text as="h2" variant="headingMd">
-                Resources
-              </Text>
-              <List>
-                <List.Item>
-                  <Link
-                    url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
-                    target="_blank"
-                    removeUnderline
-                  >
-                    App nav best practices
-                  </Link>
-                </List.Item>
-              </List>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
+
       </Layout>
     </Page>
   );
@@ -67,17 +35,17 @@ export default function AdditionalPage() {
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <Box
+    <Text
       as="span"
-      padding="025"
-      paddingInlineStart="100"
-      paddingInlineEnd="100"
-      background="bg-surface-active"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="100"
+      variant="bodyMd"
+      style={{
+        fontFamily: "monospace",
+        background: "#f4f6f8",
+        padding: "0 4px",
+        borderRadius: "4px",
+      }}
     >
-      <code>{children}</code>
-    </Box>
+      {children}
+    </Text>
   );
 }

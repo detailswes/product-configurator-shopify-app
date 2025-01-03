@@ -15,6 +15,7 @@ import {
   Tag,
   Frame,
   Banner,
+  ButtonGroup,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -23,11 +24,16 @@ import {
   json,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
-import { useLoaderData, useNavigation, useSubmit, Form } from "@remix-run/react";
+import {
+  useLoaderData,
+  useNavigation,
+  useSubmit,
+  Form,
+} from "@remix-run/react";
 import { useCallback, useState, useMemo } from "react";
 import { Product } from "app/types";
 import { FETCH_PRODUCTS, UPDATE_PRODUCT_METAFIELD } from "app/graphql/producs";
-
+import { ConfigureProductModal } from "app/components/ConfigureProductModal";
 interface LoaderData {
   products: Product[];
 }
@@ -127,6 +133,17 @@ export default function ProductsPage() {
   }, []);
 
   const renderItem = (item: Product) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const submit = useSubmit();
+
+    const handleConfigure = (productId: string) => {
+      const formData = new FormData();
+      formData.append("productId", productId);
+      formData.append("isConfigured", (!isConfigured).toString());
+      submit(formData, { method: "post" });
+      setIsModalOpen(false);
+    };
+
     const product = item.node;
     const imageUrl = product.images.edges[0]?.node.url || "";
     const price = parseFloat(product.priceRangeV2.minVariantPrice.amount);
@@ -143,48 +160,61 @@ export default function ProductsPage() {
         }
         persistActions
       >
-        <Text variant="bodyMd" fontWeight="bold" as="h3">
-          {product.title}
-        </Text>
-        <div style={{ marginTop: "0.25rem" }}>
-          <Text variant="bodyMd" as="p">
-            {product.vendor}
-          </Text>
-        </div>
-        <div style={{ marginTop: "0.25rem", display: "flex", gap: "0.5rem" }}>
-          <Badge>{product.status.toLowerCase()}</Badge>
-          <Text variant="bodyMd" as="p">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: currency,
-            }).format(price)}
-          </Text>
-          <Text variant="bodyMd" as="p">
-            {product.totalInventory} in stock
-          </Text>
-        </div>
-        <div style={{ marginTop: "0.25rem" }}>
-          {product.tags?.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
-        </div>
-        <div style={{ marginTop: "0.5rem", textAlign: "right" }}>
-          {isConfigured ? <h4>configured</h4> : <h4>not configured</h4>}
-          <Form method="post">
-            <input type="hidden" name="productId" value={product.id} />
-            <input
-              type="hidden"
-              name="isConfigured"
-              value={(!isConfigured).toString()}
-            />
-            <Button
-              loading={isSubmitting}
-              submit
-              disabled={isSubmitting}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <Text variant="bodyMd" fontWeight="bold" as="h3">
+              {product.title}
+            </Text>
+            <div style={{ marginTop: "0.25rem" }}>
+              <Text variant="bodyMd" as="p">
+                {product.vendor}
+              </Text>
+            </div>
+            <div
+              style={{ marginTop: "0.25rem", display: "flex", gap: "0.5rem" }}
             >
-              {isConfigured ? "Deactivate" : "Activated"}
-            </Button>
-          </Form>
+              {/* <Badge>{product.status.toLowerCase()}</Badge> */}
+              {/* <Text variant="bodyMd" as="p">
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: currency,
+                }).format(price)}
+              </Text>
+              <Text variant="bodyMd" as="p">
+                {product.totalInventory} in stock
+              </Text> */}
+            </div>
+          </div>
+          <div style={{ marginTop: "0.5rem", textAlign: "right" }}>
+            <Form method="post">
+              <input type="hidden" name="productId" value={product.id} />
+              <input
+                type="hidden"
+                name="isConfigured"
+                value={(!isConfigured).toString()}
+              />
+              <ButtonGroup>
+                <Button onClick={() => setIsModalOpen(true)}>
+                  Configure Product
+                </Button>
+                <Button submit disabled={isSubmitting}>
+                  {isConfigured ? "Deactivate" : "Activate"}
+                </Button>
+              </ButtonGroup>
+            </Form>
+            <ConfigureProductModal
+              open={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              product={product}
+              onConfigure={handleConfigure}
+              isSubmitting={isSubmitting}
+            />
+          </div>
         </div>
       </ResourceList.Item>
     );
@@ -210,11 +240,11 @@ export default function ProductsPage() {
       <Page
         fullWidth
         title="Product Options"
-        primaryAction={
-          <Button variant="primary" url="/app/products/new">
-            Add product
-          </Button>
-        }
+        // primaryAction={
+        //   <Button variant="primary" url="/app/products/new">
+        //     Add product
+        //   </Button>
+        // }
       >
         <TitleBar title="All Products" />
         <Layout>
@@ -275,6 +305,7 @@ export default function ProductsPage() {
                   items={filteredProducts}
                   renderItem={renderItem}
                   selectedItems={selectedItems}
+                  loading={isSubmitting}
                   // onSelectionChange={setSelectedItems}
                   emptyState={
                     <EmptyState
