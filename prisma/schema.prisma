@@ -36,6 +36,7 @@ model AdaSignageImage {
   image_url             String
   image_name            String?
   productConfigurations ProductConfiguration[] @relation("ImageRelation")
+  productImages ProductImages[] @relation("ImageRelation")
 }
 
 model AvailableColors {
@@ -43,6 +44,7 @@ model AvailableColors {
   color_name            String
   hex_value             String
   productConfigurations ProductConfiguration[] @relation("ColorRelation")
+  productColors ProductColors[] @relation("ColorRelation")
 }
 
 model ProductConfiguration {
@@ -55,4 +57,21 @@ model ProductConfiguration {
 
   availableColors  AvailableColors[] @relation("ColorRelation")
   adaSignageImages AdaSignageImage[] @relation("ImageRelation")
+}
+
+model ProductImages {
+  id              Int    @id @default(autoincrement())
+  product_id      String
+  image_id        Int
+  additional_price Int
+
+  adaSignageImages AdaSignageImage[] @relation("ImageRelation")
+}
+
+model ProductColors {
+  id           Int    @id @default(autoincrement())
+  product_id   String
+  color_ids    Int
+
+  availableColors  AvailableColors[] @relation("ColorRelation")
 }
