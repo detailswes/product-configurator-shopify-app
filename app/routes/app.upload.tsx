@@ -36,7 +36,7 @@ export default function UploadPage() {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    submit(formData, { method: "post",});
+    submit(formData, { method: "post", action: "/upload" });
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

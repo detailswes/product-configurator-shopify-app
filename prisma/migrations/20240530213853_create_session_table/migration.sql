@@ -5,7 +5,7 @@ CREATE TABLE "Session" (
     "state" TEXT NOT NULL,
     "isOnline" BOOLEAN NOT NULL DEFAULT false,
     "scope" TEXT,
-    "expires" DateTime,
+    "expires" timestamptz,
     "accessToken" TEXT NOT NULL,
     "userId" BIGINT,
     "firstName" TEXT,
@@ -16,3 +16,10 @@ CREATE TABLE "Session" (
     "collaborator" BOOLEAN DEFAULT false,
     "emailVerified" BOOLEAN DEFAULT false
 );
+
+
+CREATE TABLE "AdaSignageImage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "image_url" TEXT NOT NULL,
+    "image_name" TEXT
+)

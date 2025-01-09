@@ -12,4 +12,5 @@ if (process.env.NODE_ENV === "production") {
   }
   prisma = global.__prisma;
 }
+console.log("Available models:", Object.keys(prisma));
 export default prisma;

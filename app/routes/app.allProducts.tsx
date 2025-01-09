@@ -34,15 +34,55 @@ import { useCallback, useState, useMemo } from "react";
 import { Product } from "app/types";
 import { FETCH_PRODUCTS, UPDATE_PRODUCT_METAFIELD } from "app/graphql/producs";
 import { ConfigureProductModal } from "app/components/ConfigureProductModal";
+import prisma from "../db.server";
+interface DBImage {
+  id: number;
+  url: string;  // Changed from image_url to match component
+  title: string;  // Changed from image_name to match component
+}
 interface LoaderData {
   products: Product[];
+  dbImages: DBImage[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  const response = await admin.graphql(FETCH_PRODUCTS);
-  const data = await response.json();
-  return json({ products: data.data.products.edges });
+  
+  try {
+    // Fetch products from Shopify
+    const response = await admin.graphql(FETCH_PRODUCTS);
+    const productsData = await response.json();
+    
+    // Fetch images and transform them to match the expected DBImage type
+    const dbImagesRaw = await prisma.adaSignageImage.findMany({
+      select: {
+        id: true,
+        image_url: true,
+        image_name: true,
+      },
+      where: {
+        // Only get images where image_name is not null
+        image_name: {
+          not: null
+        }
+      }
+    });
+
+    // Transform the data to match the expected types
+    const dbImages: DBImage[] = dbImagesRaw.map(img => ({
+      id: img.id,
+      url: img.image_url,
+      title: img.image_name || 'Untitled' // Provide a default value if null
+    }));
+
+    return json({ 
+      products: productsData.data.products.edges,
+      dbImages
+    });
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    throw new Error("Failed to load products and images");
+  }
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -82,7 +122,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ProductsPage() {
-  const { products } = useLoaderData<typeof loader>();
+  const { products,dbImages } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -210,6 +250,7 @@ export default function ProductsPage() {
             <ConfigureProductModal
               open={isModalOpen}
               onClose={() => setIsModalOpen(false)}
+              dbImages={dbImages || []}
               product={product}
               onConfigure={handleConfigure}
               isSubmitting={isSubmitting}

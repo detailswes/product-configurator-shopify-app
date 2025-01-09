@@ -30,3 +30,29 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
 }
+
+model AdaSignageImage {
+  id                    Int                    @id @default(autoincrement())
+  image_url             String
+  image_name            String?
+  productConfigurations ProductConfiguration[] @relation("ImageRelation")
+}
+
+model AvailableColors {
+  id                    Int                    @id @default(autoincrement())
+  color_name            String
+  hex_value             String
+  productConfigurations ProductConfiguration[] @relation("ColorRelation")
+}
+
+model ProductConfiguration {
+  id                Int      @id @default(autoincrement())
+  product_id        String   @unique
+  configured_images Json // Array of image IDs and additional price
+  colors_available  Int[] // Array of color IDs
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  availableColors  AvailableColors[] @relation("ColorRelation")
+  adaSignageImages AdaSignageImage[] @relation("ImageRelation")
+}
