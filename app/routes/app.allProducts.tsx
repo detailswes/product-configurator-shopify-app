@@ -40,9 +40,15 @@ interface DBImage {
   url: string;  // Changed from image_url to match component
   title: string;  // Changed from image_name to match component
 }
+interface DBColor {
+  id: number;
+  color_name: string;
+  hex_value: string;
+}
 interface LoaderData {
   products: Product[];
   dbImages: DBImage[];
+  dbColors: DBColor[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -67,6 +73,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
         }
       }
     });
+    const dbColorsRaw = await prisma.availableColors.findMany({
+      select: {
+        id: true,
+        color_name: true,
+        hex_value: true,
+      }
+    });
 
     // Transform the data to match the expected types
     const dbImages: DBImage[] = dbImagesRaw.map(img => ({
@@ -74,10 +87,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       url: img.image_url,
       title: img.image_name || 'Untitled' // Provide a default value if null
     }));
+    const dbColors: DBColor[] = dbColorsRaw.map(color => ({
+      id: color.id,
+      color_name: color.color_name,
+      hex_value: color.hex_value,
+    }));
 
     return json({ 
       products: productsData.data.products.edges,
-      dbImages
+      dbImages,
+      dbColors
     });
   } catch (error) {
     console.error("Failed to fetch data:", error);
@@ -122,7 +141,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ProductsPage() {
-  const { products,dbImages } = useLoaderData<typeof loader>();
+  const { products,dbImages,dbColors } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -251,6 +270,7 @@ export default function ProductsPage() {
               open={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               dbImages={dbImages || []}
+              dbColors={dbColors || []}
               product={product}
               onConfigure={handleConfigure}
               isSubmitting={isSubmitting}

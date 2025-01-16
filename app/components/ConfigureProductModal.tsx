@@ -1,11 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState} from "react";
 import {
   Modal,
-  TextContainer,
   Button,
-  Select,
   TextField,
-  Thumbnail,
   Text,
   InlineStack,
   BlockStack,
@@ -13,10 +10,7 @@ import {
   Tag,
   Box,
   ColorPicker,
-  Icon,
-  Card,
   Grid,
-  RadioButton,
 } from "@shopify/polaris";
 import { DeleteIcon } from "@shopify/polaris-icons";
 
@@ -26,21 +20,21 @@ interface SecondaryImage {
   price: string;
 }
 
-interface ColorOption {
-  label: string;
-  value: string;
-  hex: string;
-}
-
-interface ProductConfigForm {
-  selectedColors: string[];
-  secondaryImages: SecondaryImage[];
+interface DBColor {
+  id: number;
+  color_name: string;
+  hex_value: string;
 }
 
 interface DBImage {
   id: number;
   url: string;
   title: string;
+}
+
+interface ProductConfigForm {
+  selectedColors: number[]; // Changed to store color IDs instead of strings
+  secondaryImages: SecondaryImage[];
 }
 
 interface ConfigureProductModalProps {
@@ -57,41 +51,22 @@ interface ConfigureProductModalProps {
       }>;
     };
   };
-  dbImages: DBImage[]; // Array of images from your database
+  dbImages: DBImage[];
+  dbColors: DBColor[];
   onConfigure: (productId: string, formData: ProductConfigForm) => void;
   isSubmitting: boolean;
 }
-
-const COLOR_OPTIONS: ColorOption[] = [
-  { label: "Classic Red", value: "red", hex: "#FF0000" },
-  { label: "Royal Blue", value: "blue", hex: "#0000FF" },
-  { label: "Forest Green", value: "green", hex: "#228B22" },
-  { label: "Sunflower Yellow", value: "yellow", hex: "#FFD700" },
-  { label: "Jet Black", value: "black", hex: "#000000" },
-  { label: "Pure White", value: "white", hex: "#FFFFFF" },
-  { label: "Navy Blue", value: "navy", hex: "#000080" },
-  { label: "Burgundy", value: "burgundy", hex: "#800020" },
-  { label: "Teal", value: "teal", hex: "#008080" },
-  { label: "Purple", value: "purple", hex: "#800080" },
-  { label: "Orange", value: "orange", hex: "#FFA500" },
-  { label: "Pink", value: "pink", hex: "#FFC0CB" },
-  { label: "Brown", value: "brown", hex: "#8B4513" },
-  { label: "Gray", value: "gray", hex: "#808080" },
-  { label: "Olive", value: "olive", hex: "#808000" },
-  { label: "Maroon", value: "maroon", hex: "#800000" },
-  { label: "Coral", value: "coral", hex: "#FF7F50" },
-  { label: "Turquoise", value: "turquoise", hex: "#40E0D0" },
-];
 
 export function ConfigureProductModal({
   open,
   onClose,
   product,
   dbImages,
+  dbColors,
   onConfigure,
   isSubmitting,
 }: ConfigureProductModalProps) {
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<number[]>([]);
   const [secondaryImages, setSecondaryImages] = useState<SecondaryImage[]>([
     { id: 1, url: "", price: "" },
   ]);
@@ -102,12 +77,12 @@ export function ConfigureProductModal({
 
   const baseImageUrl = product?.images?.edges[0]?.node?.url || "";
 
-  const handleColorChange = (value: string) => {
+  const handleColorChange = (colorId: number) => {
     setSelectedColors((prev) => {
-      if (prev.includes(value)) {
-        return prev.filter((color) => color !== value);
+      if (prev.includes(colorId)) {
+        return prev.filter((id) => id !== colorId);
       }
-      return [...prev, value];
+      return [...prev, colorId];
     });
   };
 
@@ -120,8 +95,8 @@ export function ConfigureProductModal({
     setSecondaryImages(newSecondaryImages);
   };
 
-  const handleRemoveColor = (colorValue: string) => {
-    setSelectedColors((prev) => prev.filter((color) => color !== colorValue));
+  const handleRemoveColor = (colorId: number) => {
+    setSelectedColors((prev) => prev.filter((id) => id !== colorId));
   };
 
   const handlePriceChange = (index: number, value: string) => {
@@ -161,12 +136,39 @@ export function ConfigureProductModal({
     }
   };
 
-  const handleSubmit = () => {
-    const formData: ProductConfigForm = {
-      selectedColors,
-      secondaryImages,
+  const handleSubmit = async () => {
+    const productId = product.id.split("/").pop() || "";
+    const configurationData = {
+      product_id: productId,
+      color_id: selectedColors,
+      configured_images: secondaryImages
+        .filter((img) => img.id && img.price)
+        .map((img) => ({
+          id: img.id,
+          additional_price: Number(img.price),
+        })),
     };
-    onConfigure(product.id, formData);
+
+    try {
+      const response = await fetch("/api/addProductConfiguration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(configurationData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save configuration");
+      }
+
+      onConfigure(product.id, data);
+      onClose();
+    } catch (error) {
+      console.error("Error saving configuration:", error);
+    }
   };
 
   const isFormValid = () => {
@@ -177,8 +179,7 @@ export function ConfigureProductModal({
       )
     );
   };
-
-  const [color, setColor] = useState({
+    const [color, setColor] = useState({
     hue: 120,
     brightness: 1,
     saturation: 1,
@@ -205,8 +206,8 @@ export function ConfigureProductModal({
         ]}
       >
         <Modal.Section>
-          <BlockStack gap="5">
-            <InlineGrid columns={2} gap="5">
+          <BlockStack gap="025">
+            <InlineGrid columns={2} gap="025">
               <div>
                 <div
                   style={{
@@ -230,7 +231,7 @@ export function ConfigureProductModal({
                   </Text>
                 </div>
               </div>
-              <BlockStack gap="4">
+              <BlockStack gap="025">
                 <Text as="h2" variant="headingMd">
                   Available Colors
                 </Text>
@@ -245,16 +246,16 @@ export function ConfigureProductModal({
                       gap: "10px",
                     }}
                   >
-                    {COLOR_OPTIONS.map((color) => (
+                    {dbColors?.map((color) => (
                       <div
-                        key={color.value}
-                        onClick={() => handleColorChange(color.value)}
+                        key={color.id}
+                        onClick={() => handleColorChange(color.id)}
                         className="cursor-pointer hover:bg-gray-50 p-2 rounded"
                       >
-                        <InlineStack gap="8px" align="start" blockAlign="end">
+                        <InlineStack gap="050" align="start" blockAlign="end">
                           <input
                             type="checkbox"
-                            checked={selectedColors.includes(color.value)}
+                            checked={selectedColors.includes(color.id)}
                             onChange={() => {}}
                             className="ml-auto"
                           />
@@ -262,7 +263,7 @@ export function ConfigureProductModal({
                             style={{
                               width: "14px",
                               height: "14px",
-                              backgroundColor: color.hex,
+                              backgroundColor: color.hex_value,
                               border: "1px solid #ddd",
                               borderRadius: "4px",
                               marginBottom: "4px",
@@ -270,13 +271,14 @@ export function ConfigureProductModal({
                             }}
                           />
                           <Text as="span" variant="bodyMd">
-                            {color.label}
+                            {color.color_name}
                           </Text>
                         </InlineStack>
                       </div>
                     ))}
                   </div>
                 </div>
+
                 <InlineStack gap="400" blockAlign="center">
                   <div style={{ marginTop: "20px" }}>
                     <Text as="h2" variant="headingMd">
@@ -293,20 +295,21 @@ export function ConfigureProductModal({
                   </div>
                   <Button variant="secondary">+ Add More</Button>
                 </InlineStack>
+
                 <div style={{ marginBottom: "20px" }}>
                   <Text as="h2" variant="headingMd">
                     Selected Colors:
                   </Text>
-                  <Box paddingBlock="3" paddingBlockStart="200">
+                  <Box paddingBlock="025" paddingBlockStart="200">
                     <InlineStack gap="200" wrap>
-                      {selectedColors.map((colorValue) => {
-                        const colorOption = COLOR_OPTIONS.find(
-                          (c) => c.value === colorValue,
+                      {selectedColors.map((colorId) => {
+                        const colorOption = dbColors.find(
+                          (c) => c.id === colorId,
                         );
                         return (
                           <Tag
-                            key={colorValue}
-                            onRemove={() => handleRemoveColor(colorValue)}
+                            key={colorId}
+                            onRemove={() => handleRemoveColor(colorId)}
                           >
                             <InlineStack
                               gap="100"
@@ -317,13 +320,13 @@ export function ConfigureProductModal({
                                 style={{
                                   width: "12px",
                                   height: "12px",
-                                  backgroundColor: colorOption?.hex,
+                                  backgroundColor: colorOption?.hex_value,
                                   border: "1px solid #ddd",
                                   borderRadius: "2px",
                                   display: "inline-block",
                                 }}
                               />
-                              {colorOption?.label}
+                              {colorOption?.color_name}
                             </InlineStack>
                           </Tag>
                         );
@@ -334,7 +337,7 @@ export function ConfigureProductModal({
               </BlockStack>
             </InlineGrid>
 
-            <BlockStack gap="5">
+            <BlockStack gap="025">
               {secondaryImages?.map((image, index) => (
                 <div key={index}>
                   <Box
@@ -455,12 +458,12 @@ export function ConfigureProductModal({
                           ?.id === dbImage.id
                           ? "#F4F6F8"
                           : "transparent",
-                          height: "142px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          margin: "10px"
+                      height: "142px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      margin: "10px",
                     }}
                   >
                     <BlockStack gap="200">

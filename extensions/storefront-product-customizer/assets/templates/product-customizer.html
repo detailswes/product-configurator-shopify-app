@@ -1,0 +1,21 @@
+<div class="product-customizer-container">
+    <h1>Product Customizer</h1>
+    <div class="product-details">
+      <p>Product ID: <span class="product-id"></span></p>
+      <div class="customization-options">
+        <h2>Loading customization options...</h2>
+      </div>
+    </div>
+  </div>
+  
+  <template id="customization-template">
+    <h2>Customize Your Product</h2>
+    <label for="image-{{productId}}">Select an image:</label>
+    <select id="image-{{productId}}">
+      <option value="">Select an image</option>
+    </select>
+    <label for="color-{{productId}}">Select a color:</label>
+    <select id="color-{{productId}}">
+      <option value="">Select a color</option>
+    </select>
+  </template>
