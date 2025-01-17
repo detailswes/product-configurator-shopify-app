@@ -7,18 +7,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initial HTML structure with modified overlay positioning
   const initialHTML = `
-    <div class="product-customizer-container" style="display: flex; gap: 120px;">
+    <div class="product-customizer-container" style="display: flex; gap: 120px; margin-top:50px;">
       <div style="position: relative;">
-        <img src="https://admit-ease.s3.us-east-1.amazonaws.com/brochure/board.png" alt="Select an image" style="width: 600px; height: 600px; border: 1px solid #666; border-radius: 5px">
+        <img src="https://admit-ease.s3.us-east-1.amazonaws.com/brochure/new-board.png" alt="Select an image" style="width: 600px; height: 600px; border: 1px solid #666; border-radius: 5px">
         <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <img id="preview-image" src="default-image.png" alt="Selected image" style="width: 200px; height: 150px; object-fit: contain; z-index: 1;">
+        <img id="preview-image" src="default-image.png" alt="Selected image" style="width: 300px; height: 250px; object-fit: contain; z-index: 1;">
         <div id="text-overlay" style="position: relative; width: 100%; text-align: center; padding: 20px; margin-bottom: 20px; z-index: 2;">
           <h1 id="overlay-text-display" style="font-size: 32px; color: #000000; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Blue Ridge</h1>
         </div>
         </div>
       </div>
       <div>
-        <h1 style="margin-top: 0">Product Customizer</h1>
+        <h2 style="margin-top: 0">Product Customizer</h2>
         <div class="product-details">
           <p>Product ID: <span class="product-id"></span></p>
           <div class="text-customization" style="margin-top: 20px;">
@@ -26,11 +26,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div style="margin-bottom: 15px;">
               <label for="overlay-text">Text:</label>
               <input type="text" id="overlay-text" value="Blue Ridge" style="width: 100%; padding: 8px; margin-top: 5px;">
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label for="font-size">Font Size:</label>
-              <input type="range" id="font-size" min="16" max="72" value="32" style="width: 100%; margin-top: 5px;">
-              <span id="font-size-value">32px</span>
             </div>
           </div>
           <div class="customization-options">
@@ -45,23 +40,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateTextOverlay(container) {
     const textOverlay = container.querySelector("#overlay-text-display");
     const textInput = container.querySelector("#overlay-text");
-    const fontSize = container.querySelector("#font-size");
-    const fontSizeValue = container.querySelector("#font-size-value");
+    // const fontSize = container.querySelector("#font-size");
+    // const fontSizeValue = container.querySelector("#font-size-value");
 
-    if (textOverlay && textInput && fontSize) {
+    if (textOverlay && textInput) {
       textInput.addEventListener("input", (e) => {
         textOverlay.textContent = e.target.value;
       });
 
-      fontSize.addEventListener("input", (e) => {
-        const size = `${e.target.value}px`;
-        textOverlay.style.fontSize = size;
-        fontSizeValue.textContent = size;
-      });
+      // fontSize.addEventListener("input", (e) => {
+      //   const size = `${e.target.value}px`;
+      //   textOverlay.style.fontSize = size;
+      //   fontSizeValue.textContent = size;
+      // });
     }
   }
 
-  // Generate customization options HTML
+  // Generate customization options HTML with checkmark overlay
   function generateCustomizationHTML(images, colors) {
     if (!images?.length && !colors?.length) {
       return "<p>No customization options available.</p>";
@@ -69,9 +64,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const imageOptionsHTML = images
       .map(
-        (image) => `
-        <div class="image-option" style="display: inline-flex;gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px">
+        (image, index) => `
+        <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; position: relative;">
           <img src="${image.image_url}" data-url="${image.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
+          <div class="checkmark ${index === 0 ? 'active' : ''}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? 'flex' : 'none'}; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 14px;">✓</span>
+          </div>
         </div>`,
       )
       .join("");
@@ -79,8 +77,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const colorOptionsHTML = colors
       .map(
         (color) => `
-        <div class="color-option" style="display: inline-block; margin-right: 10px; cursor: pointer;">
+        <div class="color-option" style="display: inline-block; margin-right: 10px; cursor: pointer; position: relative;">
           <div class="color-swatch" style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
+          <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 14px;">✓</span>
+          </div>
         </div>`,
       )
       .join("");
@@ -98,19 +99,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
   }
 
-  // Update preview elements
-  function updateImagePreview(container, imageUrl) {
+  // Update preview elements with selection indicators
+  function updateImagePreview(container, imageUrl, selectedElement) {
     const previewImage = container.querySelector("#preview-image");
     if (imageUrl) {
       previewImage.src = imageUrl;
       previewImage.classList.remove("hidden");
     }
+
+    // Update checkmarks for images
+    container.querySelectorAll('.image-option .checkmark').forEach(checkmark => {
+      checkmark.style.display = 'none';
+    });
+    
+    if (selectedElement) {
+      const checkmark = selectedElement.closest('.image-option').querySelector('.checkmark');
+      if (checkmark) {
+        checkmark.style.display = 'flex';
+      }
+    }
   }
 
-  function updateColorPreview(container, colorCode) {
+  function updateColorPreview(container, colorCode, selectedElement) {
     const textOverlay = container.querySelector("#overlay-text-display");
     if (textOverlay && colorCode) {
       textOverlay.style.color = colorCode;
+    }
+
+    // Update checkmarks for colors
+    container.querySelectorAll('.color-option .checkmark').forEach(checkmark => {
+      checkmark.style.display = 'none';
+    });
+    
+    if (selectedElement) {
+      const checkmark = selectedElement.closest('.color-option').querySelector('.checkmark');
+      if (checkmark) {
+        checkmark.style.display = 'flex';
+      }
     }
   }
 
@@ -131,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:44607/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:40993/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -169,7 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         img.addEventListener("click", () => {
           const imageUrl = img.dataset.url;
           console.log("Image selected:", imageUrl);
-          updateImagePreview(container, imageUrl);
+          updateImagePreview(container, imageUrl, img);
         }),
       );
 
@@ -179,7 +204,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         swatch.addEventListener("click", () => {
           const colorCode = swatch.dataset.color;
           console.log("Color selected:", colorCode);
-          updateColorPreview(container, colorCode);
+          updateColorPreview(container, colorCode, swatch);
         }),
       );
     } catch (error) {
