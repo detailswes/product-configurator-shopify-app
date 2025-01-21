@@ -26,8 +26,23 @@ export const loader: LoaderFunction = async ({ request }: { request: Request }) 
       },
     });
 
+    //Fetch product background colors
+    const productBackgroundColors = await prisma.productBackgroundColors.findMany({
+      where:{product_id:productId},
+      include:{
+        availableColors: true
+      }
+    });
+
+    const productShapesSizes = await prisma.productShapesSizes.findMany({
+      where:{product_id: productId},
+      include:{
+        availableShapesSizes: true
+      }
+    });
+
     // Check if any data was found
-    if (!productImages.length && !productColors.length) {
+    if (!productImages.length && !productColors.length && !productBackgroundColors.length && !productShapesSizes.length) {
       return json({ error: "No product configurations found" }, { status: 404 });
     }
 
@@ -37,6 +52,8 @@ export const loader: LoaderFunction = async ({ request }: { request: Request }) 
         data: {
           images: productImages,
           colors: productColors,
+          backgroundColors:productBackgroundColors,
+          shapesSizes: productShapesSizes
         },
       },
       { status: 200 }

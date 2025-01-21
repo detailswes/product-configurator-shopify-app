@@ -66,7 +66,8 @@ export function ConfigureProductModal({
   onConfigure,
   isSubmitting,
 }: ConfigureProductModalProps) {
-  const [selectedColors, setSelectedColors] = useState<number[]>([]);
+  const [selectedColorsText, setSelectedColorsText] = useState<number[]>([]);
+  const [selectedColorsBackground, setSelectedColorsBackground] = useState<number[]>([]);
   const [secondaryImages, setSecondaryImages] = useState<SecondaryImage[]>([
     { id: 1, url: "", price: "" },
   ]);
@@ -77,8 +78,16 @@ export function ConfigureProductModal({
 
   const baseImageUrl = product?.images?.edges[0]?.node?.url || "";
 
-  const handleColorChange = (colorId: number) => {
-    setSelectedColors((prev) => {
+  const handleTextColorChange = (colorId: number) => {
+    setSelectedColorsText((prev) => {
+      if (prev.includes(colorId)) {
+        return prev.filter((id) => id !== colorId);
+      }
+      return [...prev, colorId];
+    });
+  };
+  const handleBackgroundColorChange = (colorId: number) => {
+    setSelectedColorsBackground((prev) => {
       if (prev.includes(colorId)) {
         return prev.filter((id) => id !== colorId);
       }
@@ -95,8 +104,11 @@ export function ConfigureProductModal({
     setSecondaryImages(newSecondaryImages);
   };
 
-  const handleRemoveColor = (colorId: number) => {
-    setSelectedColors((prev) => prev.filter((id) => id !== colorId));
+  const handleRemoveTextColor = (colorId: number) => {
+    setSelectedColorsText((prev) => prev.filter((id) => id !== colorId));
+  };
+  const handleRemoveBackgroundColor = (colorId: number) => {
+    setSelectedColorsBackground((prev) => prev.filter((id) => id !== colorId));
   };
 
   const handlePriceChange = (index: number, value: string) => {
@@ -140,7 +152,8 @@ export function ConfigureProductModal({
     const productId = product.id.split("/").pop() || "";
     const configurationData = {
       product_id: productId,
-      color_id: selectedColors,
+      text_color_id: selectedColorsText,
+      background_color_id: selectedColorsBackground,
       configured_images: secondaryImages
         .filter((img) => img.id && img.price)
         .map((img) => ({
@@ -173,7 +186,7 @@ export function ConfigureProductModal({
 
   const isFormValid = () => {
     return (
-      selectedColors.length > 0 &&
+      selectedColorsText.length > 0 &&
       secondaryImages.every(
         (img) => img.id && img.price && !isNaN(Number(img.price)),
       )
@@ -233,7 +246,7 @@ export function ConfigureProductModal({
               </div>
               <BlockStack gap="025">
                 <Text as="h2" variant="headingMd">
-                  Available Colors
+                  Available Text Colors
                 </Text>
                 <div
                   className="max-h-60 overflow-y-auto p-4 border rounded"
@@ -249,13 +262,13 @@ export function ConfigureProductModal({
                     {dbColors?.map((color) => (
                       <div
                         key={color.id}
-                        onClick={() => handleColorChange(color.id)}
+                        onClick={() => handleTextColorChange(color.id)}
                         className="cursor-pointer hover:bg-gray-50 p-2 rounded"
                       >
                         <InlineStack gap="050" align="start" blockAlign="end">
                           <input
                             type="checkbox"
-                            checked={selectedColors.includes(color.id)}
+                            checked={selectedColorsText.includes(color.id)}
                             onChange={() => {}}
                             className="ml-auto"
                           />
@@ -279,7 +292,7 @@ export function ConfigureProductModal({
                   </div>
                 </div>
 
-                <InlineStack gap="400" blockAlign="center">
+                {/* <InlineStack gap="400" blockAlign="center">
                   <div style={{ marginTop: "20px" }}>
                     <Text as="h2" variant="headingMd">
                       Custom Color:
@@ -294,7 +307,7 @@ export function ConfigureProductModal({
                     </div>
                   </div>
                   <Button variant="secondary">+ Add More</Button>
-                </InlineStack>
+                </InlineStack> */}
 
                 <div style={{ marginBottom: "20px" }}>
                   <Text as="h2" variant="headingMd">
@@ -302,14 +315,118 @@ export function ConfigureProductModal({
                   </Text>
                   <Box paddingBlock="025" paddingBlockStart="200">
                     <InlineStack gap="200" wrap>
-                      {selectedColors.map((colorId) => {
+                      {selectedColorsText.map((colorId) => {
                         const colorOption = dbColors.find(
                           (c) => c.id === colorId,
                         );
                         return (
                           <Tag
                             key={colorId}
-                            onRemove={() => handleRemoveColor(colorId)}
+                            onRemove={() => handleRemoveTextColor(colorId)}
+                          >
+                            <InlineStack
+                              gap="100"
+                              blockAlign="center"
+                              align="center"
+                            >
+                              <div
+                                style={{
+                                  width: "12px",
+                                  height: "12px",
+                                  backgroundColor: colorOption?.hex_value,
+                                  border: "1px solid #ddd",
+                                  borderRadius: "2px",
+                                  display: "inline-block",
+                                }}
+                              />
+                              {colorOption?.color_name}
+                            </InlineStack>
+                          </Tag>
+                        );
+                      })}
+                    </InlineStack>
+                  </Box>
+                </div>
+              </BlockStack>
+              <BlockStack gap="025">
+                <Text as="h2" variant="headingMd">
+                  Available Background Colors
+                </Text>
+                <div
+                  className="max-h-60 overflow-y-auto p-4 border rounded"
+                  style={{ marginTop: "10px" }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: "10px",
+                    }}
+                  >
+                    {dbColors?.map((color) => (
+                      <div
+                        key={color.id}
+                        onClick={() => handleBackgroundColorChange(color.id)}
+                        className="cursor-pointer hover:bg-gray-50 p-2 rounded"
+                      >
+                        <InlineStack gap="050" align="start" blockAlign="end">
+                          <input
+                            type="checkbox"
+                            checked={selectedColorsBackground.includes(color.id)}
+                            onChange={() => {}}
+                            className="ml-auto"
+                          />
+                          <div
+                            style={{
+                              width: "14px",
+                              height: "14px",
+                              backgroundColor: color.hex_value,
+                              border: "1px solid #ddd",
+                              borderRadius: "4px",
+                              marginBottom: "4px",
+                              marginRight: "4px",
+                            }}
+                          />
+                          <Text as="span" variant="bodyMd">
+                            {color.color_name}
+                          </Text>
+                        </InlineStack>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* <InlineStack gap="400" blockAlign="center">
+                  <div style={{ marginTop: "20px" }}>
+                    <Text as="h2" variant="headingMd">
+                      Custom Color:
+                    </Text>
+                    <div
+                      style={{
+                        transform: "scale(0.8)",
+                        transformOrigin: "top left",
+                      }}
+                    >
+                      <ColorPicker onChange={setColor} color={color} />
+                    </div>
+                  </div>
+                  <Button variant="secondary">+ Add More</Button>
+                </InlineStack> */}
+
+                <div style={{ marginBottom: "20px" }}>
+                  <Text as="h2" variant="headingMd">
+                    Selected Colors:
+                  </Text>
+                  <Box paddingBlock="025" paddingBlockStart="200">
+                    <InlineStack gap="200" wrap>
+                      {selectedColorsBackground.map((colorId) => {
+                        const colorOption = dbColors.find(
+                          (c) => c.id === colorId,
+                        );
+                        return (
+                          <Tag
+                            key={colorId}
+                            onRemove={() => handleRemoveBackgroundColor(colorId)}
                           >
                             <InlineStack
                               gap="100"

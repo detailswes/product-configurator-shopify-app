@@ -1,13 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -32,46 +26,64 @@ model Session {
 }
 
 model AdaSignageImage {
-  id                    Int                    @id @default(autoincrement())
   image_url             String
   image_name            String?
-  productConfigurations ProductConfiguration[] @relation("ImageRelation")
-  productImages ProductImages[] @relation("ImageRelation")
+  id                    Int             @id @default(autoincrement())
+  productConfigurations ProductImages[] @relation("ImageRelation")
 }
 
 model AvailableColors {
-  id                    Int                    @id @default(autoincrement())
-  color_name            String
-  hex_value             String
-  productConfigurations ProductConfiguration[] @relation("ColorRelation")
-  productColors ProductColors[] @relation("ColorRelation")
+  color_name              String
+  hex_value               String
+  id                      Int                       @id @default(autoincrement())
+  productBackgroundColors ProductBackgroundColors[] @relation("BackgroundColorRelation")
+  productConfigurations   ProductColors[]           @relation("ColorRelation")
 }
 
 model ProductConfiguration {
-  id                Int      @id @default(autoincrement())
   product_id        String   @unique
-  configured_images Json // Array of image IDs and additional price
-  colors_available  Int[] // Array of color IDs
+  configured_images Json
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
-  availableColors  AvailableColors[] @relation("ColorRelation")
-  adaSignageImages AdaSignageImage[] @relation("ImageRelation")
+  id                Int      @id @default(autoincrement())
+  colors_available  Int[]
 }
 
 model ProductImages {
-  id              Int    @id @default(autoincrement())
-  product_id      String
-  image_id        Int
+  id               Int               @id @default(autoincrement())
+  product_id       String
+  image_id         Int
   additional_price Int
-
   adaSignageImages AdaSignageImage[] @relation("ImageRelation")
 }
 
 model ProductColors {
-  id           Int    @id @default(autoincrement())
-  product_id   String
-  color_ids    Int
+  id              Int               @id @default(autoincrement())
+  product_id      String
+  color_ids       Int
+  availableColors AvailableColors[] @relation("ColorRelation")
+}
 
-  availableColors  AvailableColors[] @relation("ColorRelation")
+model ProductBackgroundColors {
+  id                  Int               @id @default(autoincrement())
+  product_id          String
+  background_color_id Int
+  availableColors     AvailableColors[] @relation("BackgroundColorRelation")
+}
+
+model AvailableShapesSizes {
+  id                 Int                  @id @default(autoincrement())
+  shape_name         String
+  height             Decimal?             @db.Decimal
+  width              Decimal?             @db.Decimal
+  additional_price   Int?
+  image              String?
+  productShapesSizes ProductShapesSizes[] @relation("ShapeRelation")
+}
+
+model ProductShapesSizes {
+  id                   Int                    @id @default(autoincrement())
+  product_id           String
+  shape_id             Int
+  availableShapesSizes AvailableShapesSizes[] @relation("ShapeRelation")
 }

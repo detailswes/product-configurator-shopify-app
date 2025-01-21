@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:40993/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:45903/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
