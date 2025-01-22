@@ -80,7 +80,6 @@ model AvailableShapesSizes {
   image              String?
   productShapesSizes ProductShapesSizes[] @relation("ShapeRelation")
 }
-
 model ProductShapesSizes {
   id                   Int                    @id @default(autoincrement())
   product_id           String

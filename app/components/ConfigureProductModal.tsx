@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import {
   Modal,
   Button,
@@ -13,6 +13,7 @@ import {
   Grid,
 } from "@shopify/polaris";
 import { DeleteIcon } from "@shopify/polaris-icons";
+import { Decimal } from "@prisma/client/runtime/library";
 
 interface SecondaryImage {
   id: number;
@@ -31,6 +32,18 @@ interface DBImage {
   url: string;
   title: string;
 }
+
+interface DBShape {
+  id: number;
+  shape_name: string;
+  height: Decimal | null;
+  width: Decimal | null;
+  image: string | null;
+}
+
+
+
+
 
 interface ProductConfigForm {
   selectedColors: number[]; // Changed to store color IDs instead of strings
@@ -53,6 +66,8 @@ interface ConfigureProductModalProps {
   };
   dbImages: DBImage[];
   dbColors: DBColor[];
+  dbShapes: DBShape[];
+
   onConfigure: (productId: string, formData: ProductConfigForm) => void;
   isSubmitting: boolean;
 }
@@ -63,6 +78,7 @@ export function ConfigureProductModal({
   product,
   dbImages,
   dbColors,
+  dbShapes,
   onConfigure,
   isSubmitting,
 }: ConfigureProductModalProps) {
@@ -75,6 +91,8 @@ export function ConfigureProductModal({
     open: false,
     currentIndex: -1,
   });
+
+  const [selectShape, setSelectShape] = useState<DBShape | null>(null);
 
   const baseImageUrl = product?.images?.edges[0]?.node?.url || "";
 
@@ -98,6 +116,10 @@ export function ConfigureProductModal({
   const handleAddMoreImages = () => {
     setSecondaryImages([...secondaryImages, { id: 1, url: "", price: "" }]);
   };
+
+  const handleMoreShapes = () => {
+    setSelectShape([...selectShape, {id:1, url:"", price:""}]) 
+  }
 
   const handleRemoveImage = (index: number) => {
     const newSecondaryImages = secondaryImages.filter((_, i) => i !== index);
@@ -148,6 +170,9 @@ export function ConfigureProductModal({
     }
   };
 
+
+
+
   const handleSubmit = async () => {
     const productId = product.id.split("/").pop() || "";
     const configurationData = {
@@ -160,6 +185,7 @@ export function ConfigureProductModal({
           id: img.id,
           additional_price: Number(img.price),
         })),
+      shape_id: selectShape?.id || null, //selected shape id
     };
 
     try {
@@ -192,7 +218,7 @@ export function ConfigureProductModal({
       )
     );
   };
-    const [color, setColor] = useState({
+  const [color, setColor] = useState({
     hue: 120,
     brightness: 1,
     saturation: 1,
@@ -269,7 +295,7 @@ export function ConfigureProductModal({
                           <input
                             type="checkbox"
                             checked={selectedColorsText.includes(color.id)}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="ml-auto"
                           />
                           <div
@@ -348,6 +374,7 @@ export function ConfigureProductModal({
                   </Box>
                 </div>
               </BlockStack>
+
               <BlockStack gap="025">
                 <Text as="h2" variant="headingMd">
                   Available Background Colors
@@ -373,7 +400,7 @@ export function ConfigureProductModal({
                           <input
                             type="checkbox"
                             checked={selectedColorsBackground.includes(color.id)}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="ml-auto"
                           />
                           <div
@@ -534,9 +561,84 @@ export function ConfigureProductModal({
             <div style={{ marginTop: "8px", marginLeft: "4px" }}>
               <Button onClick={handleAddMoreImages} variant="secondary">
                 Add More Images
+
               </Button>
             </div>
           </BlockStack>
+
+        </Modal.Section>
+
+        <Modal.Section>
+
+          <BlockStack gap="025">
+            <Text as="h2" variant="headingMd">
+              Available Shapes
+            </Text>
+            <div
+              className="max-h-60 overflow-y-auto p-4 border rounded"
+              style={{ marginTop: "10px" }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: "10px",
+                }}
+              >
+                {dbShapes?.map((shape) => (
+                  <div
+                    key={shape.id}
+                    onClick={() => setSelectShape(shape)}
+                    className={`cursor-pointer hover:bg-gray-50 p-2 rounded ${selectShape?.id === shape.id ? "bg-blue-100" : ""
+                      }`}
+                  >
+                    <InlineStack gap="050" align="start" blockAlign="end">
+                      <input
+                        type="radio"
+                        checked={selectShape?.id === shape.id}
+                        onChange={() => { }}
+                        className="ml-auto"
+                      />
+                      <div
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          backgroundImage: `url(${shape.image || ""})`, // Optional: add image for shape preview
+                          backgroundSize: "cover",
+                          backgroundColor: "#eee",
+                          borderRadius: "4px",
+                        }}
+                      />
+                      <Text as="span" variant="bodyMd">
+                        {shape.shape_name}
+                      </Text>
+                    </InlineStack>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {selectShape && (
+              <div style={{ marginTop: "20px" }}>
+                <Text as="h3" variant="bodyMd">
+                  Selected Shape: {selectShape.shape_name}
+                </Text>
+                <Text as="p" variant="bodySm" tone="subdued">
+                  shape.height !== null && shape.height !== undefined ? shape.height.toString() : "N/A"
+                  shape.width !== null && shape.width !== undefined ? shape.width.toString() : "N/A"
+                </Text>
+              </div>
+            )}
+          </BlockStack>
+
+          <div style={{ marginTop: "8px", marginLeft: "4px" }}>
+            <Button onClick={handleMoreShapes} variant="secondary">
+              Add More Shapes
+
+            </Button>
+          </div>
+
+
         </Modal.Section>
       </Modal>
       <Modal
