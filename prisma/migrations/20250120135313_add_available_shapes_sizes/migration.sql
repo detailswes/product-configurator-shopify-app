@@ -4,8 +4,8 @@ CREATE TABLE "AvailableShapesSizes" (
     "shape_name" TEXT NOT NULL,
     "height" NUMERIC,
     "width" NUMERIC ,
-    "additional_price" NUMBER,
-    "image" TEXT
+    "additional_price" INTEGER,
+    "image" TEXT,
 
     CONSTRAINT "AvailableShapesSizes_pkey" PRIMARY KEY ("id")
 );

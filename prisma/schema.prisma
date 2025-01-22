@@ -76,7 +76,6 @@ model AvailableShapesSizes {
   shape_name         String
   height             Decimal?             @db.Decimal
   width              Decimal?             @db.Decimal
-  additional_price   Int?
   image              String?
   productShapesSizes ProductShapesSizes[] @relation("ShapeRelation")
 }
@@ -85,5 +84,6 @@ model ProductShapesSizes {
   id                   Int                    @id @default(autoincrement())
   product_id           String
   shape_id             Int
+  additional_price     Int?
   availableShapesSizes AvailableShapesSizes[] @relation("ShapeRelation")
 }

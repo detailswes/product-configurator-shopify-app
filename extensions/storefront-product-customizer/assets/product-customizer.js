@@ -57,8 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Generate customization options HTML with checkmark overlay
-  function generateCustomizationHTML(images, colors) {
-    if (!images?.length && !colors?.length) {
+  function generateCustomizationHTML(images, colors, bgColors, shapesSizes) {
+    if (!images?.length && !colors?.length && !bgColors.length && ! shapesSizes.length) {
       return "<p>No customization options available.</p>";
     }
 
@@ -67,6 +67,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         (image, index) => `
         <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; position: relative;">
           <img src="${image.image_url}" data-url="${image.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
+          <div class="checkmark ${index === 0 ? 'active' : ''}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? 'flex' : 'none'}; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 14px;">✓</span>
+          </div>
+        </div>`,
+      )
+      .join("");
+
+      const shapesOptionsHTML = shapesSizes
+      .map(
+        (shape, index) => `
+        <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; position: relative;">
+          <img src="${shape.image_url}" data-url="${shape.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
           <div class="checkmark ${index === 0 ? 'active' : ''}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? 'flex' : 'none'}; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
@@ -86,15 +98,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       )
       .join("");
 
+    const bgColorOptionsHtml = bgColors.map((bgColor)=>`
+    <div class="color-option" style="display: inline-block; margin-right: 10px; cursor: pointer; position: relative;">
+          <div class="bgColor-swatch" style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
+          <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 14px;">✓</span>
+          </div>
+        </div>
+    `)
+
     return `
       <h2>Customize Your Product</h2>
       <div class="image-options">
         <h3>Select an image:</h3>
         ${imageOptionsHTML}
       </div>
+      <div class="image-options">
+        <h3>Select Shape:</h3>
+        ${shapesOptionsHTML}
+      </div>
       <div class="color-options">
-        <h3>Select a color:</h3>
+        <h3>Select text color:</h3>
         ${colorOptionsHTML}
+      </div>
+      <div class="color-options">
+        <h3>Select background color:</h3>
+        ${bgColorOptionsHtml}
       </div>
     `;
   }
@@ -156,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:45903/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:39747/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -176,16 +205,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error("Customization options container not found");
       }
 
-      const { images, colors } = data.data;
+      const { images, colors, backgroundColors, shapesSizes } = data.data;
       const allImages = images.map((img) => img.adaSignageImages || []).flat();
       const allColors = colors.map((clr) => clr.availableColors || []).flat();
-
+      const allBackgroundColors = backgroundColors.map((bgClr)=> bgClr.availableColors || []).flat();
+      const allShapesSizes = shapesSizes.map((shape)=> shape.availableShapesSizes || []).flat();
       // Set default image if available
       if (allImages.length > 0) {
         updateImagePreview(container, allImages[0].image_url);
       }
 
-      const customizationHtml = generateCustomizationHTML(allImages, allColors);
+      const customizationHtml = generateCustomizationHTML(allImages, allColors, allBackgroundColors, allShapesSizes);
       customizationOptionsElement.innerHTML = customizationHtml;
 
       // Add event listeners for image selection
@@ -207,6 +237,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateColorPreview(container, colorCode, swatch);
         }),
       );
+
+      const backgroundColorOptions = container.querySelectorAll(".bgColor-swatch");
+      backgroundColorOptions.forEach((bgSwatch)=>
+      bgSwatch.addEventListener("click",()=>{
+        const bgColorCode = bgSwatch.dataset.color;
+        console.log("bgColorCode",bgColorCode);
+      }));
+
+      const shapesOptions = container.querySelectorAll(".shapes-sizes");
+      shapesOptions.forEach((shape)=>
+      shape.addEventListener("click",()=>{
+        const shapeUrl = shape.dataset.url;
+        console.log("shapeUrl",shapeUrl);
+      }))
     } catch (error) {
       console.error("Error initializing product customizer:", error);
       const customizationOptionsElement = container.querySelector(
