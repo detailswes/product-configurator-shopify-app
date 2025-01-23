@@ -37,6 +37,7 @@ import { ConfigureProductModal } from "app/components/ConfigureProductModal";
 import prisma from "../db.server";
 import { describe } from "node:test";
 import { Decimal } from "@prisma/client/runtime/library";
+
 interface DBImage {
   id: number;
   url: string;  // Changed from image_url to match component
@@ -52,7 +53,7 @@ interface DBShape {
   id: number;
   shape_name: string;
   height: Decimal | null;
-  width: Decimal | null ;
+  width: Decimal| null ;
   image: string | null;
 }
 
@@ -124,10 +125,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const dbShapes: DBShape[] = dbShapaSizeRaw.map(shape => ({
       id: shape.id,
       shape_name: shape.shape_name,
-      height: shape.height,
-      width: shape.width,
+      height: shape.height ? new Decimal(shape.height) : null,
+      width: shape.width  ? new Decimal(shape.width) : null,
       image: shape.image
-    }));
+    })) 
 
       
 
@@ -181,7 +182,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ProductsPage() {
-  const { products,dbImages,dbColors, dbShapes } = useLoaderData<typeof loader>();
+  // const { products,dbImages,dbColors, dbShapes } = useLoaderData<typeof loader>();
+  const { products,dbImages,dbColors, dbShapes } = useLoaderData<any>();//TODO:FIX
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -311,8 +313,7 @@ export default function ProductsPage() {
               onClose={() => setIsModalOpen(false)}
               dbImages={dbImages || []}
               dbColors={dbColors || []}
-              dbShapes={dbShapes || []}
-             
+              dbShapes={dbShapes || []} 
               product={product}
               onConfigure={handleConfigure}
               isSubmitting={isSubmitting}

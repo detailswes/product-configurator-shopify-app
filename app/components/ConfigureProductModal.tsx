@@ -36,8 +36,8 @@ interface DBImage {
 interface DBShape {
   id: number;
   shape_name: string;
-  height: Decimal | null;
-  width: Decimal | null;
+  height?: Decimal | null;
+  width?: Decimal | null;
   image: string | null;
 }
 
@@ -92,7 +92,34 @@ export function ConfigureProductModal({
     currentIndex: -1,
   });
 
+
+
   const [selectShape, setSelectShape] = useState<DBShape | null>(null);
+  const [showShapes, setShowShapes] = useState(false);
+  const [shapeSections, setShapeSections] = useState([
+    { id: 1, showShapes: false, selectShape: null }, // Initial default shape section
+  ]);
+
+  const handleAddNewShapeSection = () => {
+    const newShapeSection = {
+      id: shapeSections.length + 1,
+      showShapes: false,
+      selectShape: null,
+    };
+    setShapeSections([...shapeSections, newShapeSection]);
+  };
+
+  const handleShapeSelection = (sectionId: number, shape: any) => {
+    setShapeSections(
+      shapeSections.map((section) =>
+        section.id === sectionId
+          ? { ...section, selectShape: shape, showShapes: false }
+          : section
+      )
+    );
+  };
+
+
 
   const baseImageUrl = product?.images?.edges[0]?.node?.url || "";
 
@@ -117,9 +144,6 @@ export function ConfigureProductModal({
     setSecondaryImages([...secondaryImages, { id: 1, url: "", price: "" }]);
   };
 
-  const handleMoreShapes = () => {
-    setSelectShape([...selectShape, {id:1, url:"", price:""}]) 
-  }
 
   const handleRemoveImage = (index: number) => {
     const newSecondaryImages = secondaryImages.filter((_, i) => i !== index);
@@ -223,6 +247,8 @@ export function ConfigureProductModal({
     brightness: 1,
     saturation: 1,
   });
+
+
 
   return (
     <>
@@ -568,78 +594,109 @@ export function ConfigureProductModal({
 
         </Modal.Section>
 
-        <Modal.Section>
 
-          <BlockStack gap="025">
-            <Text as="h2" variant="headingMd">
-              Available Shapes
-            </Text>
-            <div
-              className="max-h-60 overflow-y-auto p-4 border rounded"
-              style={{ marginTop: "10px" }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "10px",
-                }}
-              >
-                {dbShapes?.map((shape) => (
-                  <div
-                    key={shape.id}
-                    onClick={() => setSelectShape(shape)}
-                    className={`cursor-pointer hover:bg-gray-50 p-2 rounded ${selectShape?.id === shape.id ? "bg-blue-100" : ""
-                      }`}
-                  >
-                    <InlineStack gap="050" align="start" blockAlign="end">
-                      <input
-                        type="radio"
-                        checked={selectShape?.id === shape.id}
-                        onChange={() => { }}
-                        className="ml-auto"
-                      />
-                      <div
-                        style={{
-                          width: "30px",
-                          height: "30px",
-                          backgroundImage: `url(${shape.image || ""})`, // Optional: add image for shape preview
-                          backgroundSize: "cover",
-                          backgroundColor: "#eee",
-                          borderRadius: "4px",
-                        }}
-                      />
-                      <Text as="span" variant="bodyMd">
-                        {shape.shape_name}
-                      </Text>
-                    </InlineStack>
+
+
+        {/* shape selection*/}
+
+
+        <div>
+          {shapeSections.map((section) => (
+            <Modal.Section key={section.id}>
+              <BlockStack gap="025">
+                <Text as="h2" variant="headingMd">
+                  Available Shapes
+                </Text>
+
+
+
+                {/* Shapes list */}
+                {section.showShapes && (
+                  <div className="max-h-60 overflow-y-auto p-4 border rounded" style={{ marginTop: '10px' }}>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '10px',
+                      }}
+                    >
+                      {dbShapes.map((shape) => (
+                        <div
+                          key={shape.id}
+                          onClick={() => handleShapeSelection(section.id, shape)}
+                          className={`cursor-pointer hover:bg-gray-50 p-2 rounded ${section.selectShape?.id === shape.id ? 'bg-blue-100' : ''}`}
+                        >
+                          <InlineStack gap="050" align="start" blockAlign="end">
+                            <div
+                              style={{
+                                width: '30px',
+                                height: '30px',
+                                backgroundImage: `url(${shape.image})`,
+                                backgroundSize: 'cover',
+                                backgroundColor: '#eee',
+                                borderRadius: '4px',
+                              }}
+                            />
+                          </InlineStack>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                )}
+                {/* Show Shapes button */}
+                <Button variant="secondary" 
+                
+                onClick={() => {
+                  setShapeSections(
+                    shapeSections.map((sec) =>
+                      sec.id === section.id ? { ...sec, showShapes: !sec.showShapes } : sec
+                    )
+                  );
+                }}>
+                  {section.showShapes ? 'Hide Shapes' : 'Select Shapes'}
+                </Button>
 
-            {selectShape && (
-              <div style={{ marginTop: "20px" }}>
-                <Text as="h3" variant="bodyMd">
-                  Selected Shape: {selectShape.shape_name}
-                </Text>
-                <Text as="p" variant="bodySm" tone="subdued">
-                  shape.height !== null && shape.height !== undefined ? shape.height.toString() : "N/A"
-                  shape.width !== null && shape.width !== undefined ? shape.width.toString() : "N/A"
-                </Text>
-              </div>
-            )}
-          </BlockStack>
+                {/* Display selected shape with image */}
+                {section.selectShape && (
+                  <div style={{ marginTop: '20px' }}>
+                    <Text as="h3" variant="bodyMd">
+                      Selected Shape: {section.selectShape.shape_name}
+                    </Text>
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {section.selectShape.height !== null && section.selectShape.height !== undefined
+                        ? section.selectShape.height.toString()
+                        : 'N/A'}{' '}
+                      x{' '}
+                      {section.selectShape.width !== null && section.selectShape.width !== undefined
+                        ? section.selectShape.width.toString()
+                        : 'N/A'}
+                    </Text>
 
-          <div style={{ marginTop: "8px", marginLeft: "4px" }}>
-            <Button onClick={handleMoreShapes} variant="secondary">
-              Add More Shapes
+                    {/* Display image of the selected shape */}
+                    <div
+                      style={{
+                        marginTop: '10px',
+                        width: '100px',
+                        height: '100px',
+                        backgroundImage: `url(${section.selectShape.image})`,
+                        backgroundSize: 'cover',
+                        backgroundColor: '#eee',
+                        borderRadius: '4px',
+                      }}
+                    />
+                  </div>
+                )}
+              </BlockStack>
+            </Modal.Section>
+          ))}
 
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={handleAddNewShapeSection}>
+            Add New Shape Section
+          </Button>
+        </div>
 
 
-        </Modal.Section>
+
       </Modal>
       <Modal
         open={imageSelectionModal.open}
