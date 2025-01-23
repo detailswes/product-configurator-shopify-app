@@ -5,16 +5,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   linkElem.href = "product-customizer.css";
   document.head.appendChild(linkElem);
 
-  // Initial HTML structure with modified overlay positioning
+  // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
     <div class="product-customizer-container" style="display: flex; gap: 120px; margin-top:50px;">
-      <div style="position: relative;">
-        <img src="https://admit-ease.s3.us-east-1.amazonaws.com/brochure/new-board.png" alt="Select an image" style="width: 600px; height: 600px; border: 1px solid #666; border-radius: 5px">
-        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <img id="preview-image" src="default-image.png" alt="Selected image" style="width: 300px; height: 250px; object-fit: contain; z-index: 1;">
-        <div id="text-overlay" style="position: relative; width: 100%; text-align: center; padding: 20px; margin-bottom: 20px; z-index: 2;">
-          <h1 id="overlay-text-display" style="font-size: 32px; color: #000000; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Blue Ridge</h1>
-        </div>
+      <div style="position: relative; width: 600px; height: 600px;">
+        <!-- Base shape container with background color support -->
+        <div id="shape-container" style="position: relative; width: 100%; height: 100%;">
+          <img id="shape-preview"
+               alt="Shape background" 
+               style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+          
+          <!-- Overlay for background color -->
+          <div id="color-overlay" 
+               style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; mix-blend-mode: multiply;">
+          </div>
+          
+          <!-- Content container -->
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <img id="preview-image"
+                 alt="Selected image" 
+                 style="width: 300px; height: 250px; object-fit: contain; z-index: 1;">
+            <div id="text-overlay" 
+                 style="position: relative; width: 100%; text-align: center; padding: 20px; margin-bottom: 20px; z-index: 2;">
+              <h1 id="overlay-text-display" 
+                  style="font-size: 32px; color: #000000; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                Blue Ridge
+              </h1>
+            </div>
+          </div>
         </div>
       </div>
       <div>
@@ -40,32 +58,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateTextOverlay(container) {
     const textOverlay = container.querySelector("#overlay-text-display");
     const textInput = container.querySelector("#overlay-text");
-    // const fontSize = container.querySelector("#font-size");
-    // const fontSizeValue = container.querySelector("#font-size-value");
 
     if (textOverlay && textInput) {
       textInput.addEventListener("input", (e) => {
         textOverlay.textContent = e.target.value;
       });
-
-      // fontSize.addEventListener("input", (e) => {
-      //   const size = `${e.target.value}px`;
-      //   textOverlay.style.fontSize = size;
-      //   fontSizeValue.textContent = size;
-      // });
     }
   }
 
-  // Generate customization options HTML with checkmark overlay
+  // Generate customization options HTML
   function generateCustomizationHTML(images, colors, bgColors, shapesSizes) {
-    if (!images?.length && !colors?.length && !bgColors.length && ! shapesSizes.length) {
+    if (!images?.length && !colors?.length && !bgColors.length && !shapesSizes.length) {
       return "<p>No customization options available.</p>";
     }
 
     const imageOptionsHTML = images
       .map(
         (image, index) => `
-        <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; position: relative;">
+        <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; margin-bottom: 10px; position: relative;">
           <img src="${image.image_url}" data-url="${image.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
           <div class="checkmark ${index === 0 ? 'active' : ''}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? 'flex' : 'none'}; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
@@ -74,11 +84,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       )
       .join("");
 
-      const shapesOptionsHTML = shapesSizes
+    const shapesOptionsHTML = shapesSizes
       .map(
         (shape, index) => `
-        <div class="image-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; position: relative;">
-          <img src="${shape.image_url}" data-url="${shape.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
+        <div class="shape-option" style="display: inline-flex; gap: 40px; border:1px solid black; border-radius: 10px; margin-right: 10px; margin-bottom: 10px; position: relative;">
+          <img src="${shape.image}" data-url="${shape.image}" alt="Shape option" class="shapes-sizes" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
           <div class="checkmark ${index === 0 ? 'active' : ''}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? 'flex' : 'none'}; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
@@ -89,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const colorOptionsHTML = colors
       .map(
         (color) => `
-        <div class="color-option" style="display: inline-block; margin-right: 10px; cursor: pointer; position: relative;">
+        <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="color-swatch" style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
           <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
@@ -98,14 +108,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       )
       .join("");
 
-    const bgColorOptionsHtml = bgColors.map((bgColor)=>`
-    <div class="color-option" style="display: inline-block; margin-right: 10px; cursor: pointer; position: relative;">
+    const bgColorOptionsHtml = bgColors
+      .map(
+        (bgColor) => `
+        <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="bgColor-swatch" style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
           <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
-        </div>
-    `)
+        </div>`,
+      )
+      .join("");
 
     return `
       <h2>Customize Your Product</h2>
@@ -113,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <h3>Select an image:</h3>
         ${imageOptionsHTML}
       </div>
-      <div class="image-options">
+      <div class="shape-options">
         <h3>Select Shape:</h3>
         ${shapesOptionsHTML}
       </div>
@@ -121,14 +134,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         <h3>Select text color:</h3>
         ${colorOptionsHTML}
       </div>
-      <div class="color-options">
+      <div class="bg-color-options">
         <h3>Select background color:</h3>
         ${bgColorOptionsHtml}
       </div>
     `;
   }
 
-  // Update preview elements with selection indicators
+  // Update image preview
   function updateImagePreview(container, imageUrl, selectedElement) {
     const previewImage = container.querySelector("#preview-image");
     if (imageUrl) {
@@ -149,14 +162,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function updateColorPreview(container, colorCode, selectedElement) {
+  // Update shape preview
+  function updateShapePreview(container, shapeUrl, selectedElement) {
+    const shapePreview = container.querySelector("#shape-preview");
+    if (shapeUrl) {
+      shapePreview.src = shapeUrl;
+      shapePreview.classList.remove("hidden");
+    }
+
+    // Update checkmarks for shapes
+    container.querySelectorAll('.shape-option .checkmark').forEach(checkmark => {
+      checkmark.style.display = 'none';
+    });
+    
+    if (selectedElement) {
+      const checkmark = selectedElement.closest('.shape-option').querySelector('.checkmark');
+      if (checkmark) {
+        checkmark.style.display = 'flex';
+      }
+    }
+  }
+
+  // Update text color
+  function updateTextColor(container, colorCode, selectedElement) {
     const textOverlay = container.querySelector("#overlay-text-display");
     if (textOverlay && colorCode) {
       textOverlay.style.color = colorCode;
     }
 
-    // Update checkmarks for colors
+    // Update checkmarks for text colors
     container.querySelectorAll('.color-option .checkmark').forEach(checkmark => {
+      checkmark.style.display = 'none';
+    });
+    
+    if (selectedElement) {
+      const checkmark = selectedElement.closest('.color-option').querySelector('.checkmark');
+      if (checkmark) {
+        checkmark.style.display = 'flex';
+      }
+    }
+  }
+
+  // Update background color
+  function updateBackgroundColor(container, colorCode, selectedElement) {
+    const colorOverlay = container.querySelector("#color-overlay");
+    if (colorOverlay && colorCode) {
+      colorOverlay.style.backgroundColor = colorCode;
+    }
+
+    // Update checkmarks for background colors
+    container.querySelectorAll('.bg-color-options .checkmark').forEach(checkmark => {
       checkmark.style.display = 'none';
     });
     
@@ -185,7 +240,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:39747/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:46697/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -208,49 +263,53 @@ document.addEventListener("DOMContentLoaded", async () => {
       const { images, colors, backgroundColors, shapesSizes } = data.data;
       const allImages = images.map((img) => img.adaSignageImages || []).flat();
       const allColors = colors.map((clr) => clr.availableColors || []).flat();
-      const allBackgroundColors = backgroundColors.map((bgClr)=> bgClr.availableColors || []).flat();
-      const allShapesSizes = shapesSizes.map((shape)=> shape.availableShapesSizes || []).flat();
-      // Set default image if available
+      const allBackgroundColors = backgroundColors.map((bgClr) => bgClr.availableColors || []).flat();
+      const allShapesSizes = shapesSizes.map((shape) => shape.availableShapesSizes || []).flat();
+
+      // Set default values
       if (allImages.length > 0) {
         updateImagePreview(container, allImages[0].image_url);
+      }
+      if (allShapesSizes.length > 0) {
+        updateShapePreview(container, allShapesSizes[0].image);
       }
 
       const customizationHtml = generateCustomizationHTML(allImages, allColors, allBackgroundColors, allShapesSizes);
       customizationOptionsElement.innerHTML = customizationHtml;
 
-      // Add event listeners for image selection
+      // Add event listeners
       const imageOptions = container.querySelectorAll(".image-thumb");
       imageOptions.forEach((img) =>
         img.addEventListener("click", () => {
           const imageUrl = img.dataset.url;
-          console.log("Image selected:", imageUrl);
           updateImagePreview(container, imageUrl, img);
         }),
       );
 
-      // Add event listeners for color selection
+      const shapesOptions = container.querySelectorAll(".shapes-sizes");
+      shapesOptions.forEach((shape) =>
+        shape.addEventListener("click", () => {
+          const shapeUrl = shape.dataset.url;
+          updateShapePreview(container, shapeUrl, shape);
+        }),
+      );
+
       const colorOptions = container.querySelectorAll(".color-swatch");
       colorOptions.forEach((swatch) =>
         swatch.addEventListener("click", () => {
           const colorCode = swatch.dataset.color;
-          console.log("Color selected:", colorCode);
-          updateColorPreview(container, colorCode, swatch);
+          updateTextColor(container, colorCode, swatch);
         }),
       );
 
       const backgroundColorOptions = container.querySelectorAll(".bgColor-swatch");
-      backgroundColorOptions.forEach((bgSwatch)=>
-      bgSwatch.addEventListener("click",()=>{
-        const bgColorCode = bgSwatch.dataset.color;
-        console.log("bgColorCode",bgColorCode);
-      }));
+      backgroundColorOptions.forEach((bgSwatch) =>
+        bgSwatch.addEventListener("click", () => {
+          const bgColorCode = bgSwatch.dataset.color;
+          updateBackgroundColor(container, bgColorCode, bgSwatch);
+        }),
+      );
 
-      const shapesOptions = container.querySelectorAll(".shapes-sizes");
-      shapesOptions.forEach((shape)=>
-      shape.addEventListener("click",()=>{
-        const shapeUrl = shape.dataset.url;
-        console.log("shapeUrl",shapeUrl);
-      }))
     } catch (error) {
       console.error("Error initializing product customizer:", error);
       const customizationOptionsElement = container.querySelector(
