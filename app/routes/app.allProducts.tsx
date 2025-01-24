@@ -315,7 +315,7 @@ export default function ProductsPage() {
               dbColors={dbColors || []}
               dbShapes={dbShapes || []} 
               product={product}
-              onConfigure={handleConfigure}
+              onConfigure={handleConfigure} 
               isSubmitting={isSubmitting}
             />
           </div>
