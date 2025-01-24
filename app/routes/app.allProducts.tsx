@@ -35,6 +35,9 @@ import { Product } from "app/types";
 import { FETCH_PRODUCTS, UPDATE_PRODUCT_METAFIELD } from "app/graphql/producs";
 import { ConfigureProductModal } from "app/components/ConfigureProductModal";
 import prisma from "../db.server";
+import { describe } from "node:test";
+import { Decimal } from "@prisma/client/runtime/library";
+
 interface DBImage {
   id: number;
   url: string;  // Changed from image_url to match component
@@ -45,10 +48,20 @@ interface DBColor {
   color_name: string;
   hex_value: string;
 }
+
+interface DBShape {
+  id: number;
+  shape_name: string;
+  height: Decimal | null;
+  width: Decimal| null ;
+  image: string | null;
+}
+
 interface LoaderData {
   products: Product[];
   dbImages: DBImage[];
   dbColors: DBColor[];
+  dbShape: DBShape[];
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -81,6 +94,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     });
 
+    
+    const dbShapaSizeRaw = await prisma.availableShapesSizes.findMany({
+      select:{
+        id:true,
+        shape_name:true,
+        height:true,
+        width:true,
+        image:true
+      },
+    })
+    console.log("dbShapaSizeRaw",dbShapaSizeRaw)
+
+
+   
+
+
     // Transform the data to match the expected types
     const dbImages: DBImage[] = dbImagesRaw.map(img => ({
       id: img.id,
@@ -93,10 +122,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       hex_value: color.hex_value,
     }));
 
+    const dbShapes: DBShape[] = dbShapaSizeRaw.map(shape => ({
+      id: shape.id,
+      shape_name: shape.shape_name,
+      height: shape.height ? new Decimal(shape.height) : null,
+      width: shape.width  ? new Decimal(shape.width) : null,
+      image: shape.image
+    })) 
+
+      
+
     return json({ 
       products: productsData.data.products.edges,
       dbImages,
-      dbColors
+      dbColors,
+      dbShapes,
+     
     });
   } catch (error) {
     console.error("Failed to fetch data:", error);
@@ -141,7 +182,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ProductsPage() {
-  const { products,dbImages,dbColors } = useLoaderData<typeof loader>();
+  // const { products,dbImages,dbColors, dbShapes } = useLoaderData<typeof loader>();
+  const { products,dbImages,dbColors, dbShapes } = useLoaderData<any>();//TODO:FIX
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -271,6 +313,7 @@ export default function ProductsPage() {
               onClose={() => setIsModalOpen(false)}
               dbImages={dbImages || []}
               dbColors={dbColors || []}
+              dbShapes={dbShapes || []} 
               product={product}
               onConfigure={handleConfigure}
               isSubmitting={isSubmitting}
