@@ -7,9 +7,9 @@
 }
 {% endschema %}
 
-<div 
+<div
   data-product-customizer
   data-product-id="{{ product.id }}"
->
-<h1>FROM TEMPLATES</h1>
-</div>
+  data-product-price="{{ product.price | money}}"
+  data-product-description="{{ product.content }}"
+></div>

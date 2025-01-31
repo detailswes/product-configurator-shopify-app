@@ -30,24 +30,28 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         </div>
       </div>
+      <!-- <div style= "margin-bottom:-137px; position:absolute;">
+      <h1 style="font-weight:600px;">Description:</h1>
+      <span class="product-description"></span>
+      </div> -->
     </div>
     <div class="product-customizer-content" style="width:50%;">
       <h2 style="margin-top: 0">Product Customizer</h2>
       <div class="product-details">
         <p>Product ID: <span class="product-id"></span></p>
+        <p style= "font-weight:bold;"><span class="product-price"></span></p>
         <div class="customization-options">
           <h2>Loading customization options...</h2>
         </div>
         <div class="text-customization" style="margin-top: 20px;">
-          <h3 style="margin-bottom:7px;">Enter Custom Text</h3>
+          <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Custom Text</h3>
           <div style="margin-bottom: 15px;">
             <label for="overlay-text" style="display:block;"></label>
             <input type="text" 
-                   id="overlay-text" 
-                   value="BLUE RIDGE" 
-                   maxlength="17" 
-                   style="width: 100%; padding: 8px;text-transform: uppercase;max-width: 300px; border-radius: 8px;border: 1px solid #000;height: 40px;"
-                   placeholder="ENTER TEXT (MAX 17)">
+              id="overlay-text" 
+              value="BLUE RIDGE" 
+              maxlength="17" 
+              style="width: 100%; padding: 8px;text-transform: uppercase;max-width: 300px; border-radius: 8px;border: 1px solid #000;height: 40px;">
           </div>
         </div>
       </div>
@@ -161,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (shape, index) => `
         <div class="shape-option" style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
-          <img src="${shape.image}" data-url="${shape.image}" alt="Shape option" class="shapes-sizes" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;">
+          <img src="${shape.image}" data-url="${shape.image}" alt="Shape option" class="shapes-sizes" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
           <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
           <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? "flex" : "none"}; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
@@ -196,30 +200,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return `
       <div class="image-options">
-        <h3 style="margin-bottom:7px;">Select an image:</h3>
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select an image:</h3>
         <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
         ${imageOptionsHTML}
         </div>
       </div>
       <div class="shape-options">
-        <h3 style="margin-bottom:7px;">Select Shape:</h3>
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select Shape:</h3>
        <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
         ${shapesOptionsHTML}
         </div>
       </div>
       <div class="color-options">
-        <h3 style="margin-bottom:7px;">Select text color:</h3>
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select text and image color:</h3>
         <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
         ${colorOptionsHTML}
         </div>
       </div>
       <div class="bg-color-options">
-        <h3 style="margin-bottom:7px;">Select background color:</h3>
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select background color:</h3>
       <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
         ${bgColorOptionsHtml}
         </div>
         <div class="quantity-section">
-                <h3 style="margin-bottom:7px;">Enter Quantity</h3>
+                <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Quantity</h3>
                  <input type="number" 
                    id="quantity" 
                    value="" 
@@ -357,8 +361,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (textOverlay && colorCode) {
       textOverlay.style.color = colorCode;
     }
-
-    // Update Braille text color
     if (brailleOverlay && colorCode) {
       brailleOverlay.style.color = colorCode;
     }
@@ -366,7 +368,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Update overlay image color
     const previewImage = container.querySelector("#preview-image");
     if (previewImage && colorCode) {
-      // Create and apply SVG filter for colorizing the image
       const filterId = "colorize-filter";
       let filter = document.querySelector(`#${filterId}`);
 
@@ -379,32 +380,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         svg.style.height = "0";
         svg.style.position = "absolute";
         svg.innerHTML = `
-          <defs>
-            <filter id="${filterId}">
-              <feColorMatrix type="matrix" values="
-                0 0 0 0 ${hexToRgb(colorCode).r / 255}
-                0 0 0 0 ${hexToRgb(colorCode).g / 255}
-                0 0 0 0 ${hexToRgb(colorCode).b / 255}
-                0 0 0 1 0
-              "/>
-            </filter>
-          </defs>
-        `;
+                <defs>
+                    <filter id="${filterId}">
+                        <feColorMatrix type="matrix" values="
+                            -1 0 0 0 1
+                            0 -1 0 0 1
+                            0 0 -1 0 1
+                            0 0 0 1 0" result="inverted"/>
+                        <feFlood flood-color="${colorCode}" result="color"/>
+                        <feComposite operator="in" in="color" in2="inverted" result="colored-image"/>
+                        <feComposite operator="over" in="colored-image" in2="SourceGraphic"/>
+                    </filter>
+                </defs>
+            `;
         document.body.appendChild(svg);
       } else {
         // Update existing filter
-        const feColorMatrix = filter.querySelector("feColorMatrix");
-        if (feColorMatrix) {
-          const rgb = hexToRgb(colorCode);
-          feColorMatrix.setAttribute(
-            "values",
-            `
-            0 0 0 0 ${rgb.r / 255}
-            0 0 0 0 ${rgb.g / 255}
-            0 0 0 0 ${rgb.b / 255}
-            0 0 0 1 0
-          `,
-          );
+        const feFlood = filter.querySelector("feFlood");
+        if (feFlood) {
+          feFlood.setAttribute("flood-color", colorCode);
         }
       }
 
@@ -435,18 +429,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function hexToRgb(hex) {
-    // Remove # if present
-    hex = hex.replace(/^#/, "");
-
-    // Parse hex values
-    const bigint = parseInt(hex, 16);
-    return {
-      r: (bigint >> 16) & 255,
-      g: (bigint >> 8) & 255,
-      b: bigint & 255,
-    };
-  }
   // Modified background color update function
   function updateBackgroundColor(container, colorCode, selectedElement) {
     // Update the SVG color
@@ -475,7 +457,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Initialize customizer
-  async function initializeCustomizer(container, productId) {
+  async function initializeCustomizer(container, productId, productPrice, productDescription) {
     try {
       // Set initial HTML
       container.innerHTML = initialHTML;
@@ -489,9 +471,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         productIdElement.textContent = productId;
       }
 
+      const productPriceElement = container.querySelector(".product-price");
+      if (productPriceElement) {
+        productPriceElement.textContent = productPrice;
+      }
+
+      const productDescriptionElement = container.querySelector(".product-description");
+      if(productDescriptionElement){
+        productDescriptionElement.innerHTML = productDescription
+      }
+
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:35225/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:34663/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -520,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const allShapesSizes = shapesSizes
         .map((shape) => shape.availableShapesSizes || [])
         .flat();
-
+      const shapesPrice = shapesSizes.map((shapeprice)=> shapeprice.additional_price).flat();
       // Set default values
       if (allImages.length > 0) {
         updateImagePreview(container, allImages[0].image_url);
@@ -528,6 +520,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (allShapesSizes.length > 0) {
         updateShapePreview(container, allShapesSizes[0].image);
       }
+      
 
       const customizationHtml = generateCustomizationHTML(
         allImages,
@@ -589,8 +582,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   containers.forEach((container) => {
     const productId = container.getAttribute("data-product-id");
-    if (productId) {
-      initializeCustomizer(container, productId);
+    const productPrice = container.getAttribute("data-product-price");
+    const productDescription = container.getAttribute(
+      "data-product-description",
+    );
+    if (productId && productPrice && productDescription) {
+      initializeCustomizer(container, productId, productPrice, productDescription);
     } else {
       console.error("Product ID not found for customizer container");
       container.innerHTML =
