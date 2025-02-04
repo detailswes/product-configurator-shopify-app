@@ -1,12 +1,13 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // Load CSS
-  const linkElem = document.createElement("link");
-  linkElem.rel = "stylesheet";
-  linkElem.href = "product-customizer.css";
-  document.head.appendChild(linkElem);
-
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
+
+      <script>
+        let link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'product-customizer.css';
+        document.head.appendChild(link);
+    </script>
   <div class="product-customizer-container" style="display: flex; gap: 120px; margin-top:50px;">
     <div style="position: relative; width:50%;" class="product-customizer-image">
       <!-- Base shape container with background color support -->
@@ -30,13 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         </div>
       </div>
-      <!-- <div style= "margin-bottom:-137px; position:absolute;">
+      <div style= "margin-bottom:-137px; position:absolute; bottom: 80px;">
       <h1 style="font-weight:600px;">Description:</h1>
       <span class="product-description"></span>
-      </div> -->
+      </div>
     </div>
     <div class="product-customizer-content" style="width:50%;">
-      <h2 style="margin-top: 0">Product Customizer</h2>
+      <h2 class="testing_class" style="margin-top: 0">Product Customizer</h2>
       <div class="product-details">
         <p>Product ID: <span class="product-id"></span></p>
         <p style= "font-weight:bold;"><span class="product-price"></span></p>
@@ -152,8 +153,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (image, index) => `
         <div class="image-option" style="display: inline-flex;width: 14%; gap: 40px; border:1px solid black; border-radius: 0px; margin-right: 4px; margin-bottom: 10px; position: relative;">
-          <img src="${image.image_url}" data-url="${image.image_url}" alt="Image option" class="image-thumb" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;padding:10px">
-          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? "flex" : "none"}; align-items: center; justify-content: center;">
+          <img src="${image.image_url}" 
+               data-url="${image.image_url}" 
+               data-price="${image.additional_price || 0}"
+               alt="Image option" 
+               class="image-thumb" 
+               style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border-radius: 10px;padding:10px">
+          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
+            index === 0 ? "flex" : "none"
+          }; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
         </div>
@@ -165,9 +173,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (shape, index) => `
         <div class="shape-option" style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
-          <img src="${shape.image}" data-url="${shape.image}" alt="Shape option" class="shapes-sizes" style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
+          <img src="${shape.image}" 
+               data-url="${shape.image}" 
+               data-price="${shape.additional_price || 0}"
+               alt="Shape option" 
+               class="shapes-sizes" 
+               style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
           <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
-          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? "flex" : "none"}; align-items: center; justify-content: center;">
+          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
+            index === 0 ? "flex" : "none"
+          }; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
         </div>`,
@@ -200,17 +215,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return `
       <div class="image-options">
-        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select an image:</h3>
-        <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
-        ${imageOptionsHTML}
-        </div>
-      </div>
-      <div class="shape-options">
-        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select Shape:</h3>
-       <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
-        ${shapesOptionsHTML}
-        </div>
-      </div>
+            <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select an image:</h3>
+            <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
+              ${imageOptionsHTML}
+            </div>
+          </div>
+          <div class="shape-options">
+            <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select Shape:</h3>
+            <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
+              ${shapesOptionsHTML}
+            </div>
+          </div>
       <div class="color-options">
         <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select text and image color:</h3>
         <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
@@ -381,16 +396,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         svg.style.position = "absolute";
         svg.innerHTML = `
                 <defs>
-                    <filter id="${filterId}">
-                        <feColorMatrix type="matrix" values="
-                            -1 0 0 0 1
-                            0 -1 0 0 1
-                            0 0 -1 0 1
-                            0 0 0 1 0" result="inverted"/>
-                        <feFlood flood-color="${colorCode}" result="color"/>
-                        <feComposite operator="in" in="color" in2="inverted" result="colored-image"/>
-                        <feComposite operator="over" in="colored-image" in2="SourceGraphic"/>
-                    </filter>
+                  <filter id="${filterId}">
+                    <feColorMatrix type="matrix" values="
+                      -1 0 0 0 1
+                      0 -1 0 0 1
+                      0 0 -1 0 1
+                      0 0 0 1 0" result="inverted"/>
+                    <feFlood flood-color="${colorCode}" result="color"/>
+                    <feComposite operator="in" in="color" in2="inverted" result="colored-image"/>
+                    <feComposite operator="over" in="colored-image" in2="SourceGraphic"/>
+                  </filter>
                 </defs>
             `;
         document.body.appendChild(svg);
@@ -456,8 +471,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Initialize customizer
-  async function initializeCustomizer(container, productId, productPrice, productDescription) {
+  async function initializeCustomizer(
+    container,
+    productId,
+    productPrice,
+    productDescription,
+  ) {
     try {
       // Set initial HTML
       container.innerHTML = initialHTML;
@@ -470,20 +489,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (productIdElement) {
         productIdElement.textContent = productId;
       }
-
-      const productPriceElement = container.querySelector(".product-price");
-      if (productPriceElement) {
-        productPriceElement.textContent = productPrice;
+      // Store base price as a number, removing currency symbol if present
+      const cleanPrice = productPrice
+        .replace(/[^\d.]/g, "")
+        // If there are multiple dots, keep only the last one
+        .replace(/\.(?=.*\.)/g, "");
+      const basePrice = parseFloat(cleanPrice);
+      // Function to update total price display
+      function updateTotalPrice(imagePrice, shapePrice) {
+        const totalPrice = basePrice + imagePrice + shapePrice;
+        const productPriceElement = container.querySelector(".product-price");
+        if (productPriceElement) {
+          productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
+                                         Image Price: $${imagePrice.toFixed(2)}<br>
+                                         Shape Price: $${shapePrice.toFixed(2)}<br>
+                                         <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
+        }
       }
 
-      const productDescriptionElement = container.querySelector(".product-description");
-      if(productDescriptionElement){
-        productDescriptionElement.innerHTML = productDescription
+      const productDescriptionElement = container.querySelector(
+        ".product-description",
+      );
+      if (productDescriptionElement) {
+        productDescriptionElement.innerHTML = productDescription;
       }
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:34663/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:34465/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -512,16 +545,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       const allShapesSizes = shapesSizes
         .map((shape) => shape.availableShapesSizes || [])
         .flat();
-      const shapesPrice = shapesSizes.map((shapeprice)=> shapeprice.additional_price).flat();
-      // Set default values
+      const shapesPrice = shapesSizes
+        .map((shapeprice) => shapeprice.additional_price)
+        .flat();
+      const imagePrice = images.map((image) => image.additional_price).flat();
+
+      // Track current selections and their prices
+      let currentImagePrice = 0;
+      let currentShapePrice = 0;
+
+      // Set default values and initial prices from first items
       if (allImages.length > 0) {
         updateImagePreview(container, allImages[0].image_url);
+        currentImagePrice = parseFloat(imagePrice) || 0;
       }
       if (allShapesSizes.length > 0) {
         updateShapePreview(container, allShapesSizes[0].image);
+        currentShapePrice = parseFloat(shapesPrice) || 0;
       }
-      
 
+      // Update initial total price
+      updateTotalPrice(currentImagePrice, currentShapePrice);
+
+      // Generate customization HTML with prices included in the data attributes
       const customizationHtml = generateCustomizationHTML(
         allImages,
         allColors,
@@ -530,20 +576,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       customizationOptionsElement.innerHTML = customizationHtml;
 
-      // Add event listeners
+      // Add event listeners with price updates
       const imageOptions = container.querySelectorAll(".image-thumb");
-      imageOptions.forEach((img) =>
+      imageOptions.forEach((img, index) =>
         img.addEventListener("click", () => {
           const imageUrl = img.dataset.url;
           updateImagePreview(container, imageUrl, img);
+          // Update image price from database value
+          currentImagePrice = parseFloat(imagePrice[index]) || 0;
+          updateTotalPrice(currentImagePrice, currentShapePrice);
         }),
       );
 
       const shapesOptions = container.querySelectorAll(".shapes-sizes");
-      shapesOptions.forEach((shape) =>
+      shapesOptions.forEach((shape, index) =>
         shape.addEventListener("click", () => {
           const shapeUrl = shape.dataset.url;
           updateShapePreview(container, shapeUrl, shape);
+          // Update shape price from database value
+          currentShapePrice = parseFloat(shapesPrice[index]) || 0;
+          updateTotalPrice(currentImagePrice, currentShapePrice);
         }),
       );
 
@@ -559,7 +611,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         container.querySelectorAll(".bgColor-swatch");
       backgroundColorOptions.forEach((bgSwatch) =>
         bgSwatch.addEventListener("click", () => {
-          console.log("something");
           const bgColorCode = bgSwatch.dataset.color;
           updateBackgroundColor(container, bgColorCode, bgSwatch);
         }),
@@ -587,7 +638,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       "data-product-description",
     );
     if (productId && productPrice && productDescription) {
-      initializeCustomizer(container, productId, productPrice, productDescription);
+      initializeCustomizer(
+        container,
+        productId,
+        productPrice,
+        productDescription,
+      );
     } else {
       console.error("Product ID not found for customizer container");
       container.innerHTML =
