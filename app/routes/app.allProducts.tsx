@@ -106,6 +106,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     })
     console.log("dbShapaSizeRaw", dbShapaSizeRaw)
 
+
+
+
+
     // Transform the data to match the expected types
     const dbImages: DBImage[] = dbImagesRaw.map(img => ({
       id: img.id,
@@ -125,7 +129,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       width: shape.width ? new Decimal(shape.width) : null,
       image: shape.image
     }))
-    
+
+
+
     return json({
       products: productsData.data.products.edges,
       dbImages,
@@ -365,7 +371,7 @@ export default function ProductsPage() {
                 }}>
                   <Loading />
                   <Text variant="bodyMd" as="p" alignment="center">
-                    Loading products...
+                  Please wait...
                   </Text>
                 </div>
               </Card>
@@ -374,7 +380,7 @@ export default function ProductsPage() {
         </Page>
       </Frame>
     );
-  }  //6
+  }  //7
 
   const resourceName: ResourceListProps["resourceName"] = {
     singular: "product",
