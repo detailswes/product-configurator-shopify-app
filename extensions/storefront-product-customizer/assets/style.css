@@ -1,8 +1,9 @@
-.product-customizer-container {
+/* .product-customizer-container {
     padding: 20px;
     background-color: #f5f5f5;
     border-radius: 8px;
     margin: 20px 0;
+    flex-wrap: wrap;
   }
   
   .preview-section {
@@ -84,3 +85,17 @@
     font-size: 16px;
     color: #333;
   }
+  .image-option-widget {
+    display: flex;
+    flex-wrap: wrap;
+}
+.image-option-widget .image-option {
+  width: 15%;
+}
+.product-customizer-image , .product-customizer-content {
+  width: 50%;
+} */
+
+.testing_class {
+  color: red;
+}
