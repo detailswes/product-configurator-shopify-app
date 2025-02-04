@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       </div>
       <div class="description_content">
-      <h1 style="font-weight:600px; font-size: 28px;">Description:</h1>
+      <h1 class="description_main">Description:</h1>
       <span class="product-description"></span>
       </div>
     </div>
@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
         ${bgColorOptionsHtml}
         </div>
-        <div class="quantity-section">
+         <div class="quantity-section">
                 <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Quantity</h3>
                 <div class="quantity-container">
                     <button class="quantity-btn" onclick="decrement()">-</button>
@@ -237,29 +237,33 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <button class="quantity-btn" onclick="increment()">+</button>
                 </div>
         </div>
-      </div>
-       <script>
-        function increment() {
-            let input = document.getElementById("quantity");
-            input.value = parseInt(input.value) + 1;
-        }
+      </div>`;
+    }
+    // Add the quantity control functions to the global scope
+    window.increment = function () {
+      let input = document.getElementById("quantity");
+      input.value = parseInt(input.value) + 1;
+    };
 
-        function decrement() {
-            let input = document.getElementById("quantity");
-            if (parseInt(input.value) > 1) {
-                input.value = parseInt(input.value) - 1;
-            }
-        }
+    window.decrement = function () {
+      let input = document.getElementById("quantity");
+      if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+      }
+    };
 
-        document.getElementById("quantity").addEventListener("input", function () {
-            let value = parseInt(this.value);
-            if (isNaN(value) || value < 1) {
-                this.value = 1;
-            }
+    // Function to set up quantity input validation
+    function setupQuantityValidation() {
+      const quantityInput = document.getElementById("quantity");
+      if (quantityInput) {
+        quantityInput.addEventListener("input", function () {
+          let value = parseInt(this.value);
+          if (isNaN(value) || value < 1) {
+            this.value = 1;
+          }
         });
-    </script>
-    `;
-  }
+      }
+    }
 
   // Update image preview
 
@@ -493,6 +497,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Set initial HTML
       container.innerHTML = initialHTML;
 
+      setupQuantityValidation();
+
       // Initialize text overlay controls
       updateTextOverlay(container);
 
@@ -528,7 +534,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://honey-humanity-communist-reseller.trycloudflare.com/api/productConfigurationList?product_id=${productId}`,
+        `https://jan-gen-conversation-reservation.trycloudflare.com/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -574,6 +580,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (allShapesSizes.length > 0) {
         updateShapePreview(container, allShapesSizes[0].image);
         currentShapePrice = parseFloat(shapesPrice) || 0;
+      }
+      if(allColors.length > 0) {
+        updateTextColor(container,allColors[0].hex_value);
+      }
+      if(allBackgroundColors.length > 0) {
+        updateBackgroundColor(container,allBackgroundColors[0].hex_value);
       }
 
       // Update initial total price
