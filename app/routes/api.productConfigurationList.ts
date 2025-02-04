@@ -42,9 +42,9 @@ export const loader: LoaderFunction = async ({ request }: { request: Request }) 
     });
 
     // Check if any data was found
-    if (!productImages.length && !productColors.length && !productBackgroundColors.length && !productShapesSizes.length) {
-      return json({ error: "No product configurations found" }, { status: 404 });
-    }
+    // if (!productImages.length && !productColors.length && !productBackgroundColors.length && !productShapesSizes.length) {
+    //   return json({ error: "No product configurations found"/ }, { status: 404 });
+    // }
 
     // Return the combined data
     return json(

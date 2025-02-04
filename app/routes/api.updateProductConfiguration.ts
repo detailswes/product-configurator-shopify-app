@@ -58,7 +58,7 @@ export const action: ActionFunction = async ({
     return json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  const { product_id, color_id, background_color_id, configured_images, configured_shapes } =
+  const { product_id, text_color_id, background_color_id, configured_images, configured_shapes } =
     await request.json();
 
   if (!product_id) {
@@ -111,13 +111,13 @@ export const action: ActionFunction = async ({
 
     // Update product colors
     const productColors: ProductColorResult[] = [];
-    if (color_id) {
+    if (text_color_id) {
       // Delete existing product colors
       await prisma.productColors.deleteMany({
         where: { product_id: String(product_id) },
       });
 
-      const colorIds = Array.isArray(color_id) ? color_id : [color_id];
+      const colorIds = Array.isArray(text_color_id) ? text_color_id : [text_color_id];
       for (const id of colorIds) {
         const result = await prisma.productColors.create({
           data: {

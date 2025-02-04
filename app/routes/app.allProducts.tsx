@@ -30,7 +30,7 @@ import {
   useSubmit,
   Form,
 } from "@remix-run/react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import { Product } from "app/types";
 import { FETCH_PRODUCTS, UPDATE_PRODUCT_METAFIELD } from "app/graphql/producs";
 import { ConfigureProductModal } from "app/components/ConfigureProductModal";
@@ -100,9 +100,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
         shape_name: true,
         height: true,
         width: true,
-        image: true,
+        image: true
       },
-    });
+    })
+    console.log("dbShapaSizeRaw", dbShapaSizeRaw)
+
     // Transform the data to match the expected types
     const dbImages: DBImage[] = dbImagesRaw.map((img) => ({
       id: img.id,
@@ -120,9 +122,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       shape_name: shape.shape_name,
       height: shape.height ? new Decimal(shape.height) : null,
       width: shape.width ? new Decimal(shape.width) : null,
-      image: shape.image,
-    }));
-
+      image: shape.image
+    }))
+    
     return json({
       products: productsData.data.products.edges,
       dbImages,
@@ -173,26 +175,40 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ProductsPage() {
   // const { products,dbImages,dbColors, dbShapes } = useLoaderData<typeof loader>();
-  const { products, dbImages, dbColors, dbShapes } = useLoaderData<any>(); //TODO:FIX
+  const { products, dbImages, dbColors, dbShapes } = useLoaderData<any>();//TODO:FIX
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [vendorFilter, setVendorFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
-  const isLoading = navigation.state === "loading";
+  const [isDataLoaded, setIsDataLoaded] = useState(false);   //1
+  // const isLoading = navigation.state === "loading";
+  const isLoading =
+    navigation.state === "loading" ||
+    !isDataLoaded ||
+    !products ||
+    !dbImages ||
+    !dbColors ||
+    !dbShapes;  //2
   const isSubmitting = navigation.state === "submitting";
+
+  useEffect(() => {
+    if (products && dbImages && dbColors && dbShapes) {
+      setIsDataLoaded(true);
+    }
+  }, [products, dbImages, dbColors, dbShapes])  //useEffect 3
 
   // Filter logic remains the same...
   const vendors = useMemo(() => {
     const uniqueVendors = new Set(
-      products.map((p: { node: { vendor: any } }) => p.node.vendor),
+      products.map((p: { node: { vendor: any }}) => p.node.vendor),
     );
     return Array.from(uniqueVendors);
   }, [products]);
 
   const tags = useMemo(() => {
     const allTags = new Set(
-      products.flatMap((p: { node: { tags: any } }) => p.node.tags || []),
+      products.flatMap((p: { node: { tags: any }}) => p.node.tags || []),
     );
     return Array.from(allTags);
   }, [products]);
@@ -243,6 +259,11 @@ export default function ProductsPage() {
       ? product.metafield.value === "true"
       : false;
 
+    if (!isDataLoaded) {
+      return <ResourceList.Item id={product.id}>
+        <Loading />
+      </ResourceList.Item>;
+    }  //4
     return (
       <ResourceList.Item
         id={product.id}
@@ -290,39 +311,68 @@ export default function ProductsPage() {
                 value={(!isConfigured).toString()}
               />
               <ButtonGroup>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => setIsModalOpen(true)}
+                  disabled={!isDataLoaded}  //5
+                >
                   Configure Product
                 </Button>
-                <Button submit disabled={isSubmitting}>
+                <Button submit disabled={isSubmitting || !isDataLoaded}>
                   {isConfigured ? "Deactivate" : "Activate"}
                 </Button>
               </ButtonGroup>
             </Form>
-            <ConfigureProductModal
-              open={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              dbImages={dbImages || []}
-              dbColors={dbColors || []}
-              dbShapes={dbShapes || []}
-              product={product}
-              onConfigure={handleConfigure}
-              isSubmitting={isSubmitting}
-            />
+            {isDataLoaded && (
+              <ConfigureProductModal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                dbImages={dbImages || []}
+                dbColors={dbColors || []}
+                dbShapes={dbShapes || []}
+                product={product}
+                onConfigure={handleConfigure}
+                isSubmitting={isSubmitting}
+              />
+            )}
           </div>
         </div>
       </ResourceList.Item>
     );
   };
 
+  // if (isLoading) {
+  //   return (
+  //     <Frame>
+  //       <Page>
+  //         <Loading />
+  //       </Page>
+  //     </Frame>
+  //   );
+  // }
   if (isLoading) {
     return (
       <Frame>
         <Page>
-          <Loading />
+          <Layout>
+            <Layout.Section>
+              <Card>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "40px"
+                }}>
+                  <Loading />
+                  <Text variant="bodyMd" as="p" alignment="center">
+                    Loading products...
+                  </Text>
+                </div>
+              </Card>
+            </Layout.Section>
+          </Layout>
         </Page>
       </Frame>
     );
-  }
+  }  //6
 
   const resourceName: ResourceListProps["resourceName"] = {
     singular: "product",
@@ -334,11 +384,11 @@ export default function ProductsPage() {
       <Page
         fullWidth
         title="Product Options"
-        // primaryAction={
-        //   <Button variant="primary" url="/app/products/new">
-        //     Add product
-        //   </Button>
-        // }
+      // primaryAction={
+      //   <Button variant="primary" url="/app/products/new">
+      //     Add product
+      //   </Button>  
+      // }
       >
         <TitleBar title="All Products" />
         <Layout>
