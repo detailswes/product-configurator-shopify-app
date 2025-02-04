@@ -40,8 +40,8 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 interface DBImage {
   id: number;
-  url: string;  // Changed from image_url to match component
-  title: string;  // Changed from image_name to match component
+  url: string; // Changed from image_url to match component
+  title: string; // Changed from image_name to match component
 }
 interface DBColor {
   id: number;
@@ -53,7 +53,7 @@ interface DBShape {
   id: number;
   shape_name: string;
   height: Decimal | null;
-  width: Decimal| null ;
+  width: Decimal | null;
   image: string | null;
 }
 
@@ -66,12 +66,12 @@ interface LoaderData {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
-  
+
   try {
     // Fetch products from Shopify
     const response = await admin.graphql(FETCH_PRODUCTS);
     const productsData = await response.json();
-    
+
     // Fetch images and transform them to match the expected DBImage type
     const dbImagesRaw = await prisma.adaSignageImage.findMany({
       select: {
@@ -82,62 +82,52 @@ export async function loader({ request }: LoaderFunctionArgs) {
       where: {
         // Only get images where image_name is not null
         image_name: {
-          not: null
-        }
-      }
+          not: null,
+        },
+      },
     });
     const dbColorsRaw = await prisma.availableColors.findMany({
       select: {
         id: true,
         color_name: true,
         hex_value: true,
-      }
+      },
     });
 
-    
     const dbShapaSizeRaw = await prisma.availableShapesSizes.findMany({
-      select:{
-        id:true,
-        shape_name:true,
-        height:true,
-        width:true,
-        image:true
+      select: {
+        id: true,
+        shape_name: true,
+        height: true,
+        width: true,
+        image: true,
       },
-    })
-    console.log("dbShapaSizeRaw",dbShapaSizeRaw)
-
-
-   
-
-
+    });
     // Transform the data to match the expected types
-    const dbImages: DBImage[] = dbImagesRaw.map(img => ({
+    const dbImages: DBImage[] = dbImagesRaw.map((img) => ({
       id: img.id,
       url: img.image_url,
-      title: img.image_name || 'Untitled' // Provide a default value if null
+      title: img.image_name || "Untitled", // Provide a default value if null
     }));
-    const dbColors: DBColor[] = dbColorsRaw.map(color => ({
+    const dbColors: DBColor[] = dbColorsRaw.map((color) => ({
       id: color.id,
       color_name: color.color_name,
       hex_value: color.hex_value,
     }));
 
-    const dbShapes: DBShape[] = dbShapaSizeRaw.map(shape => ({
+    const dbShapes: DBShape[] = dbShapaSizeRaw.map((shape) => ({
       id: shape.id,
       shape_name: shape.shape_name,
       height: shape.height ? new Decimal(shape.height) : null,
-      width: shape.width  ? new Decimal(shape.width) : null,
-      image: shape.image
-    })) 
+      width: shape.width ? new Decimal(shape.width) : null,
+      image: shape.image,
+    }));
 
-      
-
-    return json({ 
+    return json({
       products: productsData.data.products.edges,
       dbImages,
       dbColors,
       dbShapes,
-     
     });
   } catch (error) {
     console.error("Failed to fetch data:", error);
@@ -183,7 +173,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ProductsPage() {
   // const { products,dbImages,dbColors, dbShapes } = useLoaderData<typeof loader>();
-  const { products,dbImages,dbColors, dbShapes } = useLoaderData<any>();//TODO:FIX
+  const { products, dbImages, dbColors, dbShapes } = useLoaderData<any>(); //TODO:FIX
   const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -313,9 +303,9 @@ export default function ProductsPage() {
               onClose={() => setIsModalOpen(false)}
               dbImages={dbImages || []}
               dbColors={dbColors || []}
-              dbShapes={dbShapes || []} 
+              dbShapes={dbShapes || []}
               product={product}
-              onConfigure={handleConfigure} 
+              onConfigure={handleConfigure}
               isSubmitting={isSubmitting}
             />
           </div>

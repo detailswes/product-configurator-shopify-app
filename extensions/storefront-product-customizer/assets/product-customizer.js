@@ -1,25 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
-
-      <script>
-        let link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'product-customizer.css';
-        document.head.appendChild(link);
-    </script>
-  <div class="product-customizer-container" style="display: flex; gap: 120px; margin-top:50px;">
-    <div style="position: relative; width:50%;" class="product-customizer-image">
+  <div class="product-customizer-container">
+    <div class="product-customizer-image">
       <!-- Base shape container with background color support -->
-      <div id="shape-container" style="position: relative; width: 100%; height: 100%;">
+      <div id="shape-container">
         
         <!-- Content container -->
         <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
           <img id="preview-image"
-               alt="Selected image" 
-               style="width: 300px; height: 250px; object-fit: contain; z-index: 1;">
+               alt="Selected image">
           <div id="text-overlay" 
-               style="position: relative; width: 100%; text-align: center; padding: 20px; margin-bottom: 20px; z-index: 2;">
+               style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2;">
             <h1 id="overlay-text-display" 
                 style="font-size: 30px; color: #000000; margin-bottom: 10px; font-family:Noto Serif Hentaigana">
               BLUE RIDGE
@@ -31,13 +23,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         </div>
       </div>
-      <div style= "margin-bottom:-137px; position:absolute; bottom: 80px;">
-      <h1 style="font-weight:600px;">Description:</h1>
+      <div class="description_content">
+      <h1 style="font-weight:600px; font-size: 28px;">Description:</h1>
       <span class="product-description"></span>
       </div>
     </div>
-    <div class="product-customizer-content" style="width:50%;">
-      <h2 class="testing_class" style="margin-top: 0">Product Customizer</h2>
+    <div class="product-customizer-content">
+      <h2 style="margin-top: 0" class="testing_class">Product Customizer</h2>
       <div class="product-details">
         <p>Product ID: <span class="product-id"></span></p>
         <p style= "font-weight:bold;"><span class="product-price"></span></p>
@@ -152,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const imageOptionsHTML = images
       .map(
         (image, index) => `
-        <div class="image-option" style="display: inline-flex;width: 14%; gap: 40px; border:1px solid black; border-radius: 0px; margin-right: 4px; margin-bottom: 10px; position: relative;">
+        <div class="image-option">
           <img src="${image.image_url}" 
                data-url="${image.image_url}" 
                data-price="${image.additional_price || 0}"
@@ -239,13 +231,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
         <div class="quantity-section">
                 <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Quantity</h3>
-                 <input type="number" 
-                   id="quantity" 
-                   value="" 
-                   style="width: 100%; padding: 8px;text-transform: uppercase;max-width: 110px; border-radius: 8px;border: 1px solid #000;height: 40px;"
-                   placeholder="">
+                <div class="quantity-container">
+                    <button class="quantity-btn" onclick="decrement()">-</button>
+                    <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+                    <button class="quantity-btn" onclick="increment()">+</button>
+                </div>
         </div>
       </div>
+       <script>
+        function increment() {
+            let input = document.getElementById("quantity");
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decrement() {
+            let input = document.getElementById("quantity");
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        document.getElementById("quantity").addEventListener("input", function () {
+            let value = parseInt(this.value);
+            if (isNaN(value) || value < 1) {
+                this.value = 1;
+            }
+        });
+    </script>
     `;
   }
 
@@ -516,7 +528,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:34465/api/productConfigurationList?product_id=${productId}`,
+        `https://honey-humanity-communist-reseller.trycloudflare.com/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
