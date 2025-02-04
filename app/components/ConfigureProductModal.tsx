@@ -153,7 +153,6 @@ interface ConfigureProductModalProps {
   isSubmitting: boolean;
 }
 
-
 export function ConfigureProductModal({
   open,
   onClose,
@@ -694,7 +693,7 @@ export function ConfigureProductModal({
         <Modal.Section>
           <BlockStack gap="025">
             <InlineGrid columns={2} gap="025">
-              <div>
+              <div style={{ display: 'flex', flexDirection: "column", alignItems: 'center', justifyContent: "center" }}>
                 <div
                   style={{
                     display: "flex",
@@ -771,7 +770,7 @@ export function ConfigureProductModal({
                   </Text>
                 )}
 
-                <div style={{ marginBottom: "20px" }}>
+                <div style={{ marginBottom: "20px", marginTop: "20px" }}>
                   <Text as="h2" variant="headingMd">
                     Selected Colors:
                   </Text>
@@ -806,95 +805,103 @@ export function ConfigureProductModal({
                       })}
                     </InlineStack>
                   </Box>
+
+                  <div style={{ marginTop: "40px" }}>
+                    <BlockStack gap="025" >
+                      <Text as="h2" variant="headingMd">
+                        Available Background Colors
+                      </Text>
+                      <div
+                        className="max-h-60 overflow-y-auto p-4 border rounded"
+                        style={{ marginTop: "10px" }}
+                      >
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: "10px",
+                          }}
+                        >
+                          {dbColors?.map((color) => (
+                            <div
+                              key={color.id}
+                              onClick={() => handleBackgroundColorChange(color.id)}
+                              className="cursor-pointer hover:bg-gray-50 p-2 rounded"
+                            >
+                              <InlineStack gap="050" align="start" blockAlign="end">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedColorsBackground.includes(color.id)}
+                                  onChange={() => { }}
+                                  className="ml-auto"
+                                />
+                                <div
+                                  style={{
+                                    width: "14px",
+                                    height: "14px",
+                                    backgroundColor: color.hex_value,
+                                    border: "1px solid #ddd",
+                                    borderRadius: "4px",
+                                    marginBottom: "4px",
+                                    marginRight: "4px",
+                                  }}
+                                />
+                                <Text as="span" variant="bodyMd">
+                                  {color.color_name}
+                                </Text>
+                              </InlineStack>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      {validationErrors.backgroundColors && (
+                        <Text as="span" tone="critical" variant="bodySm">
+                          {validationErrors.backgroundColors}
+                        </Text>
+                      )}
+
+                      <div style={{ marginBottom: "20px", marginTop: "20px" }}>
+                        <Text as="h2" variant="headingMd">
+                          Selected Colors:
+                        </Text>
+                        <Box paddingBlock="025" paddingBlockStart="200">
+                          <InlineStack gap="200" wrap>
+                            {selectedColorsBackground.map((colorId) => {
+                              const colorOption = dbColors.find((c) => c.id === colorId);
+                              return (
+                                <Tag key={colorId} onRemove={() => handleRemoveBackgroundColor(colorId)}>
+                                  <InlineStack gap="100" blockAlign="center" align="center">
+                                    <div
+                                      style={{
+                                        width: "12px",
+                                        height: "12px",
+                                        backgroundColor: colorOption?.hex_value,
+                                        border: "1px solid #ddd",
+                                        borderRadius: "2px",
+                                        display: "inline-block",
+                                      }}
+                                    />
+                                    {colorOption?.color_name}
+                                  </InlineStack>
+                                </Tag>
+                              );
+                            })}
+                          </InlineStack>
+                        </Box>
+
+                      </div>
+
+                      {/* testttt */}
+                    </BlockStack>
+                  </div>
                 </div>
               </BlockStack>
             </InlineGrid>
+
+
           </BlockStack>
 
-          <BlockStack gap="025">
-            <Text as="h2" variant="headingMd">
-              Available Background Colors
-            </Text>
-            <div
-              className="max-h-60 overflow-y-auto p-4 border rounded"
-              style={{ marginTop: "10px" }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "10px",
-                }}
-              >
-                {dbColors?.map((color) => (
-                  <div
-                    key={color.id}
-                    onClick={() => handleBackgroundColorChange(color.id)}
-                    className="cursor-pointer hover:bg-gray-50 p-2 rounded"
-                  >
-                    <InlineStack gap="050" align="start" blockAlign="end">
-                      <input
-                        type="checkbox"
-                        checked={selectedColorsBackground.includes(color.id)}
-                        onChange={() => { }}
-                        className="ml-auto"
-                      />
-                      <div
-                        style={{
-                          width: "14px",
-                          height: "14px",
-                          backgroundColor: color.hex_value,
-                          border: "1px solid #ddd",
-                          borderRadius: "4px",
-                          marginBottom: "4px",
-                          marginRight: "4px",
-                        }}
-                      />
-                      <Text as="span" variant="bodyMd">
-                        {color.color_name}
-                      </Text>
-                    </InlineStack>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {validationErrors.backgroundColors && (
-              <Text as="span" tone="critical" variant="bodySm">
-                {validationErrors.backgroundColors}
-              </Text>
-            )}
 
-            <div style={{ marginBottom: "20px" }}>
-              <Text as="h2" variant="headingMd">
-                Selected Colors:
-              </Text>
-              <Box paddingBlock="025" paddingBlockStart="200">
-                <InlineStack gap="200" wrap>
-                  {selectedColorsBackground.map((colorId) => {
-                    const colorOption = dbColors.find((c) => c.id === colorId);
-                    return (
-                      <Tag key={colorId} onRemove={() => handleRemoveBackgroundColor(colorId)}>
-                        <InlineStack gap="100" blockAlign="center" align="center">
-                          <div
-                            style={{
-                              width: "12px",
-                              height: "12px",
-                              backgroundColor: colorOption?.hex_value,
-                              border: "1px solid #ddd",
-                              borderRadius: "2px",
-                              display: "inline-block",
-                            }}
-                          />
-                          {colorOption?.color_name}
-                        </InlineStack>
-                      </Tag>
-                    );
-                  })}
-                </InlineStack>
-              </Box>
-
-            </div>
-          </BlockStack>
 
           <BlockStack gap="025">
             {secondaryImages?.map((image, index) => (
@@ -969,7 +976,7 @@ export function ConfigureProductModal({
                 </Box>
               </div>
             ))}
-            <div style={{ marginTop: "8px", marginLeft: "4px" }}>
+            <div style={{ marginTop: "8px", marginBottom: "30px", marginLeft: "4px" }}>
               <Button onClick={handleAddMoreImages} variant="secondary" disabled={!isLastImageValid()}>
                 Add More Images
               </Button>
@@ -1041,7 +1048,7 @@ export function ConfigureProductModal({
                                   borderRadius: "100%",
                                   padding: "2px",
                                   display: "flex",
-                                  alignItems: "center",
+                                  alignItems: "center", 
                                   justifyContent: "center"
                                 }}
                               >
