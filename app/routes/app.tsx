@@ -25,7 +25,7 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
-        <Link to="/app/additional">Dashboard</Link>
+        {/* <Link to="/app/additional">Dashboard</Link> */}
         <Link to="/app/allProducts">Product Options</Link>
         <Link to="/app/upload">Upload Image</Link>
         <Link to="/app/overlay">Generate Color Image</Link>
