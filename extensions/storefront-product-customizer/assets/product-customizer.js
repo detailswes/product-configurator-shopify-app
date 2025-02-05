@@ -534,7 +534,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://jan-gen-conversation-reservation.trycloudflare.com/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:45303/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
