@@ -103,10 +103,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         image: true
       },
     })
-    console.log("dbShapaSizeRaw", dbShapaSizeRaw)
-
-
-
 
 
     // Transform the data to match the expected types

@@ -203,7 +203,6 @@ export function ConfigureProductModal({
       setIsLoading(true);
       try {
         const productId = product?.id?.split("/").pop();
-        console.log("Fetching configuration for product:", productId);
 
         if (!productId) throw new Error("Invalid product ID");
 
@@ -213,15 +212,11 @@ export function ConfigureProductModal({
         }
 
         const data = await response.json();
-        console.log("Fetched configuration:", data);
-
         if (data.error) {
-          console.warn("No existing configuration found:", data.error);
           resetToDefaultState();
           setIsLoading(false);
           return;
         }
-        console.log("data is coming", data)
         setExistingConfig(data);
 
 
@@ -231,8 +226,6 @@ export function ConfigureProductModal({
           );
           setSelectedColorsText(textColorIds);
         }
-
-        console.log("incoming data", data)
         if (data.data?.backgroundColors) {
           const bgColorIds = data.data.backgroundColors.map(
             (backgroundColors: { background_color_id: number }) => backgroundColors.background_color_id
@@ -273,7 +266,6 @@ export function ConfigureProductModal({
         }
 
       } catch (error) {
-        console.error("Error fetching configuration:", error);
         resetToDefaultState();
       } finally {
         setIsLoading(false);
@@ -598,7 +590,6 @@ export function ConfigureProductModal({
     }
   };
   const handleSubmit = async () => {
-    console.log("submit button clcike")
     if (!validateForm()) {
       console.log("Validation failed");
       return;
@@ -626,8 +617,6 @@ export function ConfigureProductModal({
           }))
       };
 
-      console.log("Submitting configuration:", configurationData);
-
       const endpoint = existingConfig
         ? `/api/updateProductConfiguration`
         : '/api/addProductConfiguration';
@@ -646,7 +635,6 @@ export function ConfigureProductModal({
       }
 
       const responseData = await response.json();
-      console.log("Configuration saved successfully:", responseData);
 
       const formData: ProductConfigForm = {
         selectedColors: selectedColorsText,

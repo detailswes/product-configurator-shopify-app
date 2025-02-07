@@ -183,10 +183,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const colorOptionsHTML = colors
       .map(
-        (color) => `
+        (color,index) => `
         <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="color-swatch" style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
-          <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
+          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
+            index === 0 ? "flex" : "none"
+          }; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
         </div>`,
@@ -195,10 +197,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const bgColorOptionsHtml = bgColors
       .map(
-        (bgColor) => `
-        <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
+        (bgColor,index) => `
+        <div class="bg-color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="bgColor-swatch" style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
-          <div class="checkmark" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: none; align-items: center; justify-content: center;">
+          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
+            index === 0 ? "flex" : "none"
+          }; align-items: center; justify-content: center;">
             <span style="color: white; font-size: 14px;">✓</span>
           </div>
         </div>`,
@@ -473,7 +477,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (selectedElement) {
       const checkmark = selectedElement
-        .closest(".color-option")
+        .closest(".bg-color-option")
         .querySelector(".checkmark");
       if (checkmark) {
         checkmark.style.display = "flex";
@@ -534,7 +538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://jan-gen-conversation-reservation.trycloudflare.com/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:36827/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -582,10 +586,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentShapePrice = parseFloat(shapesPrice) || 0;
       }
       if(allColors.length > 0) {
-        updateTextColor(container,allColors[0].hex_value);
+        updateTextColor(container, allColors[0].hex_value);
       }
       if(allBackgroundColors.length > 0) {
-        updateBackgroundColor(container,allBackgroundColors[0].hex_value);
+        updateBackgroundColor(container, allBackgroundColors[0].hex_value);
       }
 
       // Update initial total price
