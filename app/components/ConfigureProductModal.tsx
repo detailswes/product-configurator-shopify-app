@@ -253,10 +253,9 @@ export function ConfigureProductModal({
           setSecondaryImages(configuredImages.length > 0 ? configuredImages : [{ id: 1, url: "", price: "" }]);
         }
 
-        // Populate shapes with complete data from dbShapes
+      
         if (data.data?.shapesSizes) {
           const configuredShapes = data.data.shapesSizes.map((shapeConfig: any) => {
-            // Find the matching shape from dbShapes
             const matchingShape = dbShapes.find(shape => shape.id === shapeConfig.shape_id);
             return {
               id: matchingShape?.id || 1,
@@ -533,7 +532,9 @@ export function ConfigureProductModal({
 
   const handlePriceChange = (index: number, value: string) => {
     const numValue = Number(value);
+
     if (numValue < 0) return;
+    
     const newSecondaryImages = [...secondaryImages];
     newSecondaryImages[index] = {
       ...newSecondaryImages[index],
@@ -579,7 +580,7 @@ export function ConfigureProductModal({
       const newSecondaryImages = [...secondaryImages];
       newSecondaryImages[imageSelectionModal.currentIndex] = {
         ...newSecondaryImages[imageSelectionModal.currentIndex],
-        id: selectedImage.id, // Ensure this is set correctly
+        id: selectedImage.id, 
         url: selectedImage.url,
       };
       setSecondaryImages(newSecondaryImages);
@@ -605,8 +606,6 @@ export function ConfigureProductModal({
 
     try {
       const productId = product.id.split("/").pop() || "";
-
-      // Fix the configured_images mapping
       const configurationData = {
         product_id: productId,
         text_color_id: selectedColorsText,
@@ -765,12 +764,13 @@ export function ConfigureProductModal({
                 </div>
 
                 {validationErrors.textColors && (
+                  <div style={{ marginTop: "10px"}}> 
                   <Text as="span" tone="critical" variant="bodySm">
                     {validationErrors.textColors}
                   </Text>
+                  </div>
                 )}
-
-                <div style={{ marginBottom: "20px", marginTop: "20px" }}>
+                <div style={{ marginBottom: "20px", marginTop: "10px" }}>
                   <Text as="h2" variant="headingMd">
                     Selected Colors:
                   </Text>
@@ -855,12 +855,14 @@ export function ConfigureProductModal({
                         </div>
                       </div>
                       {validationErrors.backgroundColors && (
+                        <div style={{ marginTop: "10px"}} >
                         <Text as="span" tone="critical" variant="bodySm">
                           {validationErrors.backgroundColors}
                         </Text>
+                        </div>
                       )}
 
-                      <div style={{ marginBottom: "20px", marginTop: "20px" }}>
+                      <div style={{ marginBottom: "20px", marginTop: "10px" }}>
                         <Text as="h2" variant="headingMd">
                           Selected Colors:
                         </Text>
@@ -938,7 +940,7 @@ export function ConfigureProductModal({
                             fullWidth
                             size="large"
                           >
-                            Select Image
+                            Select Image 
                           </Button>
                         </div>
                         {image.url && (
@@ -962,8 +964,9 @@ export function ConfigureProductModal({
                       <div>
                         <TextField
                           label="Addition on Base Price"
-                          value={image.price}
-                          onChange={(value) => handlePriceChange(index, value)}
+                          // value={image.price}
+                          value={image.price.trim() === "" ? "0" : image.price}  
+                          onChange={(value) => handlePriceChange(index,  value.replace(/^0+(?=\d)/, ""))}
                           placeholder="0"
                           prefix="$"
                           type="number"
@@ -1149,8 +1152,8 @@ export function ConfigureProductModal({
                       <div>
                         <TextField
                           label="Addition on Base Price"
-                          value={section.price}
-                          onChange={(value) => handleShapePriceChange(index, value)}
+                          value={section.price.trim() === "" ? "0": section.price}
+                          onChange={(value) => handleShapePriceChange(index, value.replace(/^0+(?=\d)/, ""))}
                           placeholder="0"
                           prefix="$"
                           type="number"

@@ -30,6 +30,7 @@ export default function App() {
         <Link to="/app/upload">Upload Image</Link>
         <Link to="/app/overlay">Generate Color Image</Link>
         <Link to="/app/images">All Images</Link>
+        <Link to="/app/availableColor">Add Color</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
