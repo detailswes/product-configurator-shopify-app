@@ -94,6 +94,31 @@
   margin-top: 0;
 }
 
+.entry-quantity-btns{
+  display: flex;
+  align-items: center;
+}
+
+.add-cart-btn{
+  text-align: center;
+  background: red;
+  border-radius: 25px;
+  padding: 10px 60px;
+  color: #fff;
+  border: 2px solid red !important;
+  text-transform: uppercase;
+  box-shadow: none;
+  transition: .4s;
+  margin-left: 20px;
+  font-weight: 600;
+}
+
+.add-cart-btn:hover{
+  background: #fff0;
+  color: red;
+  transition: .4s;
+}
+
 @media (max-width: 768px) {
   .product-customizer-container {
     display: block;
@@ -114,3 +139,4 @@
     margin-top: 20px;
   }
 }
+

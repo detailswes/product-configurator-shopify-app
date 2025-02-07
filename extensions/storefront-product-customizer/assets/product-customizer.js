@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const colorOptionsHTML = colors
       .map(
-        (color,index) => `
+        (color, index) => `
         <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="color-swatch" style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
           <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const bgColorOptionsHtml = bgColors
       .map(
-        (bgColor,index) => `
+        (bgColor, index) => `
         <div class="bg-color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
           <div class="bgColor-swatch" style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
           <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
@@ -211,17 +211,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return `
       <div class="image-options">
-            <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select an image:</h3>
-            <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
-              ${imageOptionsHTML}
-            </div>
-          </div>
-          <div class="shape-options">
-            <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select Shape:</h3>
-            <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
-              ${shapesOptionsHTML}
-            </div>
-          </div>
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select an image:</h3>
+        <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
+          ${imageOptionsHTML}
+        </div>
+      </div>
+      <div class="shape-options">
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select Shape:</h3>
+        <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
+          ${shapesOptionsHTML}
+        </div>
+      </div>
       <div class="color-options">
         <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select text and image color:</h3>
         <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
@@ -230,44 +230,47 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
       <div class="bg-color-options">
         <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Select background color:</h3>
-      <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
-        ${bgColorOptionsHtml}
+        <div class="image-option-widget" style="display:flex;flex-wrap:wrap;">
+          ${bgColorOptionsHtml}
         </div>
-         <div class="quantity-section">
-                <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Quantity</h3>
-                <div class="quantity-container">
-                    <button class="quantity-btn" onclick="decrement()">-</button>
-                    <input type="number" id="quantity" class="quantity-input" value="1" min="1">
-                    <button class="quantity-btn" onclick="increment()">+</button>
-                </div>
+      </div>
+      <div class="quantity-section">
+        <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Quantity</h3>
+        <div class='entry-quantity-btns'>
+        <div class="quantity-container">
+        <button class="quantity-btn" onclick="decrement()">-</button>
+        <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+        <button class="quantity-btn" onclick="increment()">+</button>
+        </div>
+        <button class='add-cart-btn'>Add To Cart</button>
         </div>
       </div>`;
-    }
-    // Add the quantity control functions to the global scope
-    window.increment = function () {
-      let input = document.getElementById("quantity");
-      input.value = parseInt(input.value) + 1;
-    };
+  }
+  // Add the quantity control functions to the global scope
+  window.increment = function () {
+    let input = document.getElementById("quantity");
+    input.value = parseInt(input.value) + 1;
+  };
 
-    window.decrement = function () {
-      let input = document.getElementById("quantity");
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-      }
-    };
-
-    // Function to set up quantity input validation
-    function setupQuantityValidation() {
-      const quantityInput = document.getElementById("quantity");
-      if (quantityInput) {
-        quantityInput.addEventListener("input", function () {
-          let value = parseInt(this.value);
-          if (isNaN(value) || value < 1) {
-            this.value = 1;
-          }
-        });
-      }
+  window.decrement = function () {
+    let input = document.getElementById("quantity");
+    if (parseInt(input.value) > 1) {
+      input.value = parseInt(input.value) - 1;
     }
+  };
+
+  // Function to set up quantity input validation
+  function setupQuantityValidation() {
+    const quantityInput = document.getElementById("quantity");
+    if (quantityInput) {
+      quantityInput.addEventListener("input", function () {
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 1) {
+          this.value = 1;
+        }
+      });
+    }
+  }
 
   // Update image preview
 
@@ -538,7 +541,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:36827/api/productConfigurationList?product_id=${productId}`,
+        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -585,10 +588,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateShapePreview(container, allShapesSizes[0].image);
         currentShapePrice = parseFloat(shapesPrice) || 0;
       }
-      if(allColors.length > 0) {
+      if (allColors.length > 0) {
         updateTextColor(container, allColors[0].hex_value);
       }
-      if(allBackgroundColors.length > 0) {
+      if (allBackgroundColors.length > 0) {
         updateBackgroundColor(container, allBackgroundColors[0].hex_value);
       }
 
