@@ -540,7 +540,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:34589/api/productConfigurationList?product_id=${productId}`,
+        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
