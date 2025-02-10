@@ -40,8 +40,8 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 interface DBImage {
   id: number;
-  url: string; // Changed from image_url to match component
-  title: string; // Changed from image_name to match component
+  url: string; 
+  title: string; 
 }
 interface DBColor {
   id: number;
@@ -183,7 +183,7 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [vendorFilter, setVendorFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
-  const [isDataLoaded, setIsDataLoaded] = useState(false);   //1
+  const [isDataLoaded, setIsDataLoaded] = useState(false);   
   // const isLoading = navigation.state === "loading";
   const isLoading =
     navigation.state === "loading" ||
@@ -191,16 +191,16 @@ export default function ProductsPage() {
     !products ||
     !dbImages ||
     !dbColors ||
-    !dbShapes;  //2
+    !dbShapes;  
   const isSubmitting = navigation.state === "submitting";
 
   useEffect(() => {
     if (products && dbImages && dbColors && dbShapes) {
       setIsDataLoaded(true);
     }
-  }, [products, dbImages, dbColors, dbShapes])  //useEffect 3
+  }, [products, dbImages, dbColors, dbShapes])  
 
-  // Filter logic remains the same...
+  
   const vendors = useMemo(() => {
     const uniqueVendors = new Set(
       products.map((p: { node: { vendor: any }}) => p.node.vendor),
