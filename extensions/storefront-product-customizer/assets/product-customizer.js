@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <input type="number" id="quantity" class="quantity-input" value="1" min="1">
         <button class="quantity-btn" onclick="increment()">+</button>
         </div>
-        <button class='add-cart-btn'>Add To Cart</button>
+        <button class='add-cart-btn' id='add-to-cart-btn'>Add To Cart</button>
         </div>
       </div>`;
   }
@@ -503,7 +503,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       // Set initial HTML
       container.innerHTML = initialHTML;
-
       setupQuantityValidation();
 
       // Initialize text overlay controls
@@ -541,7 +540,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:34589/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -606,7 +605,114 @@ document.addEventListener("DOMContentLoaded", async () => {
         allShapesSizes,
       );
       customizationOptionsElement.innerHTML = customizationHtml;
+      const addToCartButton = container.querySelector("#add-to-cart-btn");
+      if (addToCartButton) {
+        addToCartButton.addEventListener("click", () => {
+          const quantityInput = container.querySelector("#quantity");
+          const quantity = parseInt(quantityInput.value) || 1;
 
+          // Get the product handle from the URL or data attribute
+          const productHandle =
+            window.location.pathname.split("/products/")[1]?.split("?")[0] ||
+            container.getAttribute("data-product-handle");
+
+          if (!productHandle) {
+            console.error("Product handle not found");
+            alert("Could not add to cart: Product information missing");
+            return;
+          }
+
+          // Collect customization data
+          const customText = container.querySelector("#overlay-text").value;
+          const selectedImage = container
+            .querySelector(".image-option .checkmark.active")
+            ?.closest(".image-option");
+          const selectedShape = container
+            .querySelector(".shape-option .checkmark.active")
+            ?.closest(".shape-option");
+          const selectedColor = container.querySelector(
+            ".color-swatch.selected",
+          )?.dataset.color;
+          const selectedBgColor = container.querySelector(
+            ".bgColor-swatch.selected",
+          )?.dataset.color;
+
+          // Prepare cart data
+          const formData = {
+            items: [
+              {
+                id: productHandle,
+                quantity: quantity,
+                properties: {
+                  "Custom Text": customText,
+                  "Selected Image":
+                    selectedImage?.querySelector("img")?.dataset.url || "",
+                  "Selected Shape":
+                    selectedShape?.querySelector("img")?.dataset.url || "",
+                  "Text Color": selectedColor || "",
+                  "Background Color": selectedBgColor || "",
+                },
+              },
+            ],
+          };
+
+          // Call addToCart with formData
+          addToCart(formData);
+        });
+      }
+
+      // Update addToCart function to handle line item properties
+      function addToCart(formData) {
+        // First, get the product variant ID
+        fetch(`/products/${formData.items[0].id}.js`)
+          .then((response) => response.json())
+          .then((product) => {
+            // Get the first available variant or the default variant
+            const variant = product.variants[0];
+            if (!variant) {
+              throw new Error("No variant found for this product");
+            }
+
+            // Create the cart data with the variant ID
+            const cartData = {
+              items: [
+                {
+                  id: variant.id, // Use variant ID instead of product ID
+                  quantity: formData.items[0].quantity,
+                  properties: formData.items[0].properties,
+                },
+              ],
+            };
+
+            // Add to cart with the variant ID
+            return fetch("/cart/add.js", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(cartData),
+            });
+          })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((error) => Promise.reject(error));
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("data",data);
+            // Success - show confirmation
+            alert("Successfully added to cart!");
+            // Optionally refresh mini cart or update cart count
+            if (typeof refreshCart === "function") {
+              refreshCart();
+            }
+          })
+          .catch((error) => {
+            console.error("Error adding to cart:", error);
+            alert("Failed to add item to cart. Please try again.");
+          });
+      }
       // Add event listeners with price updates
       const imageOptions = container.querySelectorAll(".image-thumb");
       imageOptions.forEach((img, index) =>
