@@ -14,7 +14,7 @@ import {
   Loading
 } from "@shopify/polaris";
 import colorNamer from "color-namer";
-import { json } from "@remix-run/node";
+import { data, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import prisma from "../db.server";
 
@@ -48,6 +48,7 @@ export default function ColorInputForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   const validateHex = (hex: string) => /^#([0-9A-Fa-f]{6})$/.test(hex);
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function ColorInputForm() {
     if (!validateHex(colorHex) || !colorName.trim()) {
       setErrorMessage("Invalid color details.");
       setSaving(false);
+    
       return;
     }
     const colorExits = colors.some(
@@ -86,16 +88,16 @@ export default function ColorInputForm() {
     );
 
     if (colorExits) {
-      setErrorMessage("Color already exists.");
+      setErrorMessage(`${colorHex} is already exist to ${colorName}`);
       setSaving(false);
       return;
     }
     if (hexValueExists) {
-      setErrorMessage("Color already exists.");
+      setErrorMessage(`${colorHex} is already exist to ${colorName}`);
       setSaving(false);
       return;
     }
-  
+
     try {
       const response = await fetch("/api/addColors", {
         method: "POST",
@@ -109,6 +111,7 @@ export default function ColorInputForm() {
       if (response.ok) {
         setColors([...colors, { id: Date.now(), color_name: colorName, hex_value: colorHex }]);
         setSuccessMessage("Color saved successfully!");
+        setShowPicker(false)
       } else if (data.exists) {
         setErrorMessage("Color already exists.");
       } else {
@@ -120,38 +123,38 @@ export default function ColorInputForm() {
       setSaving(false);
     }
   };
-   const navigation = useNavigation();
-    const isLoading = navigation.state === "loading";
-    if (isLoading) {
-      return (
-        <Frame>
-          <Page>
-            <Layout>
-              <Layout.Section>
-                <Card>
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: "40px"
-                  }}>
-                    <BlockStack gap="200">
-                      <Text variant="bodyMd" as="p" alignment="center">
-                       Please Wait...
-                      </Text>
-                    </BlockStack>
-                    <Loading />
-                  </div>
-                </Card>
-              </Layout.Section>
-            </Layout> 
-          </Page>
-        </Frame>
-      );
-    }
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  if (isLoading) {
+    return (
+      <Frame>
+        <Page>
+          <Layout>
+            <Layout.Section>
+              <Card>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "40px"
+                }}>
+                  <BlockStack gap="200">
+                    <Text variant="bodyMd" as="p" alignment="center">
+                      Please Wait...
+                    </Text>
+                  </BlockStack>
+                  <Loading />
+                </div>
+              </Card>
+            </Layout.Section>
+          </Layout>
+        </Page>
+      </Frame>
+    );
+  }
   return (
     <Frame>
-      <Page title="Color Input">
+      <Page >
         <Layout>
           <Layout.Section>
             <Card>
@@ -179,34 +182,45 @@ export default function ColorInputForm() {
                       />
                     </div>
                   </div>
-                  {saving ? (
-                    <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
-                      <Spinner accessibilityLabel="Saving color" />
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div>
+                      <Button onClick={() => setShowPicker(!showPicker)}  >
+                        {/* {showPicker ? "close color picker" : "open color picker"} */}
+                        color Picker
+                      </Button>
                     </div>
-                  ) : (
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={!validateHex(colorHex) || !colorName.trim() || saving}
-                      fullWidth
-                    >
-                      Save Color
-                    </Button>
+                    {saving ? (
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <Spinner accessibilityLabel="Saving color" />
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={!validateHex(colorHex) || !colorName.trim() || saving}
+                      >
+                        Save Color
+                      </Button>
+                    )}
+                  </div>
+                  {showPicker && (
+                    <>
+                      <HexColorPicker
+                        style={{ width: '100%', height: '13rem', marginTop: '20px' }}
+                        color={colorHex}
+                        onChange={(newValue) => setColorHex(newValue.toUpperCase())}
+                      />
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "20px",
+                          backgroundColor: validateHex(colorHex) ? colorHex : "transparent",
+                          marginTop: "10px",
+                          borderRadius: "4px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </>
                   )}
-                  <Text as="h2" variant="headingMd">Pick a Color</Text>
-                  <HexColorPicker style={{ width: '80%', height: '10rem' }}
-                    color={colorHex}
-                    onChange={(newValue) => setColorHex(newValue.toUpperCase())}
-                  />
-                  <div
-                    style={{
-                      width: "80%",
-                      height: "20px",
-                      backgroundColor: validateHex(colorHex) ? colorHex : "transparent",
-                      marginTop: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
                 </div>
                 <div style={{ flexGrow: 1 }}>
                   <Text as="h2" variant="headingMd">Available Text Colors</Text>
