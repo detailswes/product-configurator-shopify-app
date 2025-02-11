@@ -540,7 +540,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:40923/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -591,7 +591,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateTextColor(container, allColors[0].hex_value);
       }
       if (allBackgroundColors.length > 0) {
-        updateBackgroundColor(container, allBackgroundColors[0].hex_value);
+        const element = container.querySelectorAll(".bgColor-swatch");
+        updateBackgroundColor(container, "#32a852");
       }
 
       // Update initial total price
@@ -700,7 +701,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return response.json();
           })
           .then((data) => {
-            console.log("data",data);
+            console.log("data", data);
             // Success - show confirmation
             alert("Successfully added to cart!");
             // Optionally refresh mini cart or update cart count
@@ -746,12 +747,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const backgroundColorOptions =
         container.querySelectorAll(".bgColor-swatch");
-      backgroundColorOptions.forEach((bgSwatch) =>
-        bgSwatch.addEventListener("click", () => {
+     backgroundColorOptions.forEach((bgSwatch, index) => {
+        if(index===0){
+          updateBackgroundColor(container, '', bgSwatch);
+        }
+        return bgSwatch.addEventListener("click", () => {
           const bgColorCode = bgSwatch.dataset.color;
           updateBackgroundColor(container, bgColorCode, bgSwatch);
-        }),
-      );
+        });
+      });
     } catch (error) {
       console.error("Error initializing product customizer:", error);
       const customizationOptionsElement = container.querySelector(
