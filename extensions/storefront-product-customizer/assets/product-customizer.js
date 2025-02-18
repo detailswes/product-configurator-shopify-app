@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const selectedOptions = {
+    imageId: null,
+    shapeId: null,
+    colorId: null,
+    bgColorId: null,
+  };
+
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
   <div class="product-customizer-container">
@@ -144,7 +151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const imageOptionsHTML = images
       .map(
         (image, index) => `
-        <div class="image-option">
+        <div class="image-option" data-id=${image.id}>
           <img src="${image.image_url}" 
                data-url="${image.image_url}" 
                data-price="${image.additional_price || 0}"
@@ -164,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapesOptionsHTML = shapesSizes
       .map(
         (shape, index) => `
-        <div class="shape-option" style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
+        <div class="shape-option" data-id=${shape.id} style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
           <img src="${shape.image}" 
                data-url="${shape.image}" 
                data-price="${shape.additional_price || 0}"
@@ -185,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (color, index) => `
         <div class="color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
-          <div class="color-swatch" style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
+          <div class="color-swatch" data-id=${color.id} style="background-color: ${color.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${color.hex_value}"></div>
           <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
             index === 0 ? "flex" : "none"
           }; align-items: center; justify-content: center;">
@@ -199,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (bgColor, index) => `
         <div class="bg-color-option" style="display: inline-block; margin-right: 10px; margin-bottom: 10px; cursor: pointer; position: relative;">
-          <div class="bgColor-swatch" style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
+          <div class="bgColor-swatch" data-id=${bgColor.id} style="background-color: ${bgColor.hex_value}; width: 40px; height: 40px; border: 1px solid #ccc; display: block; border-radius: 10px;" data-color="${bgColor.hex_value}"></div>
           <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
             index === 0 ? "flex" : "none"
           }; align-items: center; justify-content: center;">
@@ -540,7 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:40923/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:37743/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -598,6 +605,54 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Update initial total price
       updateTotalPrice(currentImagePrice, currentShapePrice);
 
+      async function generateCustomImage(options) {
+        try {
+          const {
+            shapeId,
+            imageId,
+            colorId,
+            bgColorId,
+            text,
+            format = "png",
+          } = options;
+          
+          // Make a request to the updated overlay API that now handles S3 upload automatically
+          const response = await fetch("http://localhost:37743/api/overlay", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              shapeId,
+              imageId,
+              colorId,
+              bgColorId,
+              text,
+              format,
+            }),
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to generate image");
+          }
+      
+          // The API now returns JSON with the S3 URL directly
+          const result = await response.json();
+          
+          if (!result.success) {
+            throw new Error(result.error || "Failed to process image");
+          }
+          
+          // Return the S3 URL from the response
+          return result.url;
+          
+        } catch (error) {
+          console.error("Error generating custom image:", error);
+          throw error;
+        }
+      }
+
       // Generate customization HTML with prices included in the data attributes
       const customizationHtml = generateCustomizationHTML(
         allImages,
@@ -608,68 +663,94 @@ document.addEventListener("DOMContentLoaded", async () => {
       customizationOptionsElement.innerHTML = customizationHtml;
       const addToCartButton = container.querySelector("#add-to-cart-btn");
       if (addToCartButton) {
-        addToCartButton.addEventListener("click", () => {
-          const quantityInput = container.querySelector("#quantity");
-          const quantity = parseInt(quantityInput.value) || 1;
+        addToCartButton.addEventListener("click", async () => {
+          try {
+            addToCartButton.disabled = true;
+            addToCartButton.textContent = "Generating image...";
 
-          // Get the product handle from the URL or data attribute
-          const productHandle =
-            window.location.pathname.split("/products/")[1]?.split("?")[0] ||
-            container.getAttribute("data-product-handle");
+            const quantityInput = container.querySelector("#quantity");
+            const quantity = parseInt(quantityInput.value) || 1;
+            const customText = container.querySelector("#overlay-text").value;
 
-          if (!productHandle) {
-            console.error("Product handle not found");
-            alert("Could not add to cart: Product information missing");
-            return;
-          }
+            // Get selected options and their IDs
+            const selectedImage = container
+              .querySelector(".image-option .checkmark.active")
+              ?.closest(".image-option");
+            const selectedShape = container
+              .querySelector(".shape-option .checkmark.active")
+              ?.closest(".shape-option");
+            const selectedColor = container.querySelector(
+              ".color-swatch.selected",
+            );
+            const selectedBgColor = container.querySelector(
+              ".bgColor-swatch.selected",
+            );
+            // We need to get IDs from the data attributes or extract them from the dataset
+            const imageId = parseInt(selectedOptions?.imageId) || allImages[0].id;
+            const shapeId = parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
+            const colorId = parseInt(selectedOptions?.colorId) || allColors[0].id;
+            const bgColorId = parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
 
-          // Collect customization data
-          const customText = container.querySelector("#overlay-text").value;
-          const selectedImage = container
-            .querySelector(".image-option .checkmark.active")
-            ?.closest(".image-option");
-          const selectedShape = container
-            .querySelector(".shape-option .checkmark.active")
-            ?.closest(".shape-option");
-          const selectedColor = container.querySelector(
-            ".color-swatch.selected",
-          )?.dataset.color;
-          const selectedBgColor = container.querySelector(
-            ".bgColor-swatch.selected",
-          )?.dataset.color;
+            // Generate the custom image and get S3 URL
+            const customImageUrl = await generateCustomImage({
+              shapeId: shapeId,
+              imageId: imageId,
+              colorId: colorId,
+              bgColorId: bgColorId,
+              text: customText,
+              format: "png",
+            });
+            // Get the product handle
+            const productHandle =
+              window.location.pathname.split("/products/")[1]?.split("?")[0] ||
+              container.getAttribute("data-product-handle");
 
-          // Prepare cart data
-          const formData = {
-            items: [
-              {
-                id: productHandle,
-                quantity: quantity,
-                properties: {
-                  "Custom Text": customText,
-                  "Selected Image":
-                    selectedImage?.querySelector("img")?.dataset.url || "",
-                  "Selected Shape":
-                    selectedShape?.querySelector("img")?.dataset.url || "",
-                  "Text Color": selectedColor || "",
-                  "Background Color": selectedBgColor || "",
+            if (!productHandle) {
+              alert("Could not add to cart: Product information missing");
+              return;
+            }
+
+            // Prepare cart data with the custom image URL
+            const formData = {
+              items: [
+                {
+                  id: productHandle,
+                  quantity: quantity,
+                  properties: {
+                    "Custom Text": customText,
+                    "Selected Image":
+                      selectedImage?.querySelector("img")?.dataset.url || "",
+                    "Selected Shape":
+                      selectedShape?.querySelector("img")?.dataset.url || "",
+                    "Text Color": selectedColor?.dataset.color || "",
+                    "Background Color": selectedBgColor?.dataset.color || "",
+                    _custom_image: customImageUrl,
+                  },
                 },
-              },
-            ],
-          };
+              ],
+            };
 
-          // Call addToCart with formData
-          addToCart(formData);
+            // Call addToCart with formData
+            addToCart(formData);
+          } catch (error) {
+            console.error("Error generating custom image:", error);
+            alert("Failed to generate custom image. Please try again.");
+          } finally {
+            addToCartButton.disabled = false;
+            addToCartButton.textContent = "Add To Cart";
+          }
         });
       }
 
       // Update addToCart function to handle line item properties
       function addToCart(formData) {
+        let variant;
         // First, get the product variant ID
         fetch(`/products/${formData.items[0].id}.js`)
           .then((response) => response.json())
           .then((product) => {
             // Get the first available variant or the default variant
-            const variant = product.variants[0];
+            variant = product.variants[0];
             if (!variant) {
               throw new Error("No variant found for this product");
             }
@@ -700,18 +781,54 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             return response.json();
           })
-          .then((data) => {
-            console.log("data", data);
-            // Success - show confirmation
-            alert("Successfully added to cart!");
-            // Optionally refresh mini cart or update cart count
-            if (typeof refreshCart === "function") {
-              refreshCart();
+          .then(() => {
+            // After successful add, update the cart using the update API
+            const cartUpdateData = {
+              updates: {
+                [variant.id]: formData.items[0].quantity,
+              },
+            };
+            return fetch("/cart/update.js", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(cartUpdateData),
+            });
+          })
+          .then((response) => response.json())
+          .then((cart) => {
+            // If you're using a cart drawer, trigger its update
+            if (
+              typeof window.Shopify !== "undefined" &&
+              window.Shopify.updateCartDrawer
+            ) {
+              window.Shopify.updateCartDrawer();
             }
+
+            // Show success message
+            const message = document.createElement("div");
+            message.classList.add(
+              "cart-notification",
+              "cart-notification--success",
+            );
+            message.textContent = "Added to cart!";
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
           })
           .catch((error) => {
             console.error("Error adding to cart:", error);
-            alert("Failed to add item to cart. Please try again.");
+
+            // Show error message
+            const message = document.createElement("div");
+            message.classList.add(
+              "cart-notification",
+              "cart-notification--error",
+            );
+            message.textContent =
+              "Failed to add item to cart. Please try again.";
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
           });
       }
       // Add event listeners with price updates
@@ -723,6 +840,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Update image price from database value
           currentImagePrice = parseFloat(imagePrice[index]) || 0;
           updateTotalPrice(currentImagePrice, currentShapePrice);
+          const imageId = img.closest(".image-option").dataset.id;
+          selectedOptions.imageId = imageId;
         }),
       );
 
@@ -734,6 +853,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Update shape price from database value
           currentShapePrice = parseFloat(shapesPrice[index]) || 0;
           updateTotalPrice(currentImagePrice, currentShapePrice);
+          const shapeId = shape.closest(".shape-option").dataset.id;
+          selectedOptions.shapeId = shapeId;
         }),
       );
 
@@ -742,18 +863,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         swatch.addEventListener("click", () => {
           const colorCode = swatch.dataset.color;
           updateTextColor(container, colorCode, swatch);
+          const colorId = swatch.dataset.id;
+          selectedOptions.colorId = colorId;
         }),
       );
 
       const backgroundColorOptions =
         container.querySelectorAll(".bgColor-swatch");
-     backgroundColorOptions.forEach((bgSwatch, index) => {
-        if(index===0){
-          updateBackgroundColor(container, '', bgSwatch);
+      backgroundColorOptions.forEach((bgSwatch, index) => {
+        if (index === 0) {
+          updateBackgroundColor(container, "", bgSwatch);
         }
         return bgSwatch.addEventListener("click", () => {
           const bgColorCode = bgSwatch.dataset.color;
           updateBackgroundColor(container, bgColorCode, bgSwatch);
+          const bgColorId = bgSwatch.dataset.id;
+          selectedOptions.bgColorId = bgColorId;
         });
       });
     } catch (error) {

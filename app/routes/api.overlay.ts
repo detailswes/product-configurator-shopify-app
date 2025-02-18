@@ -1,6 +1,18 @@
 import sharp from "sharp";
 import type { ActionFunction } from "@remix-run/node";
+import { json } from '@remix-run/node';
+import { S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import prisma from "app/db.server";
+
+// Configure AWS S3 client
+const s3Client = new S3Client({
+  region: 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+  }
+});
 
 interface ImageMetadata {
   width: number;
@@ -13,7 +25,7 @@ interface RequestBody {
   colorId: number;
   bgColorId: number;
   text: string;
-  format: "png" | "jpeg" | "webp";
+  format: "png" | "jpeg" | "webp" | "svg";
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -29,16 +41,10 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Validate required fields
     if (!shapeId || !imageId || !colorId || !bgColorId) {
-      return new Response("Missing required fields", { 
-        status: 400,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        statusText: JSON.stringify({ 
-          error: "Missing required fields",
-          required: ["shapeId", "imageId", "colorId", "bgColorId"]
-        })
-      });
+      return json({ 
+        error: "Missing required fields",
+        required: ["shapeId", "imageId", "colorId", "bgColorId"]
+      }, { status: 400 });
     }
 
     // Fetch shape data
@@ -46,10 +52,7 @@ export const action: ActionFunction = async ({ request }) => {
       where: { id: shapeId },
     });
     if (!shapesData?.image) {
-      return new Response("Shape not found or missing image", { 
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
+      return json({ error: "Shape not found or missing image" }, { status: 404 });
     }
 
     // Fetch image data
@@ -57,10 +60,7 @@ export const action: ActionFunction = async ({ request }) => {
       where: { id: imageId },
     });
     if (!imageData?.image_url) {
-      return new Response("Image not found", { 
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
+      return json({ error: "Image not found" }, { status: 404 });
     }
 
     // Fetch color data
@@ -68,10 +68,7 @@ export const action: ActionFunction = async ({ request }) => {
       where: { id: colorId },
     });
     if (!colorData?.hex_value) {
-      return new Response("Color not found", { 
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
+      return json({ error: "Color not found" }, { status: 404 });
     }
 
     // Fetch background color data
@@ -79,10 +76,7 @@ export const action: ActionFunction = async ({ request }) => {
       where: { id: bgColorId },
     });
     if (!backgroundColorData?.hex_value) {
-      return new Response("Background color not found", { 
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
+      return json({ error: "Background color not found" }, { status: 404 });
     }
 
     // Fetch and process SVG template
@@ -92,13 +86,16 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Fetch and process base image
     const baseImageResponse = await fetch(shapesData.image);
+    if (!baseImageResponse.ok) {
+      throw new Error(`Failed to fetch shape image: ${shapesData.image}`);
+    }
     let baseSvg = await baseImageResponse.text();
 
     // Handle background color
     if (!baseSvg.includes('fill=')) {
       baseSvg = baseSvg.replace(
         '<svg',
-        `<svg fill="${backgroundColorData.hex_value}"`
+        `<svg><rect width="100%" height="100%" fill="${backgroundColorData.hex_value}"/>`
       );
     } else {
       baseSvg = baseSvg.replace(/fill="[^"]*"/g, `fill="${backgroundColorData.hex_value}"`);
@@ -106,9 +103,9 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Convert base SVG to PNG buffer
     const baseImageBuffer = await sharp(Buffer.from(baseSvg))
-      .resize(500, 500)
-      .toFormat("png")
-      .toBuffer();
+    .resize(500, 500)
+    .toFormat("png")
+    .toBuffer();
 
     // Process SVG template with color
     svgTemplate = svgTemplate.replace(
@@ -130,16 +127,16 @@ export const action: ActionFunction = async ({ request }) => {
     const left = Math.floor((baseImageMetadata.width - overlayMetadata.width) / 2);
     const top = Math.floor((baseImageMetadata.height - overlayMetadata.height) / 2);
 
-    const brailleText  = text.toUpperCase().split("")
-    .map(
-      (char) =>
-        "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿"[
-          " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=".indexOf(
-            char,
-          )
-        ],
-    )
-    .join("");
+    const brailleText = text.toUpperCase().split("")
+      .map(
+        (char) =>
+          "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿"[
+            " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=".indexOf(
+              char,
+            )
+          ],
+      )
+      .join("");
 
     // Create text SVG
     const svgText = `
@@ -157,28 +154,52 @@ export const action: ActionFunction = async ({ request }) => {
     // Compose final image
     const finalImageBuffer = await sharp(baseImageBuffer)
       .composite([
-        { input: overlayBuffer, top:90, left },
+        { input: overlayBuffer, top: 90, left },
         { input: textBuffer, top: 0, left: 0 },
       ])
       .toFormat(format)
       .toBuffer();
 
-    return new Response(finalImageBuffer, {
-      headers: {
-        "Content-Type": `image/${format}`,
-        "Content-Disposition": `attachment; filename=overlay-image.${format}`,
-      },
+    // Generate a unique filename
+    const filename = `customized-sign-${Date.now()}.${format}`;
+    
+    // Upload the generated image to S3
+    const uploadParams = {
+      Bucket: 'foodieland-bucket',
+      Key: `customized-signs/${filename}`,
+      Body: finalImageBuffer,
+      ContentType: `image/${format}`,
+    };
+
+    const multipartUpload = new Upload({
+      client: s3Client,
+      params: uploadParams
     });
+
+    try {
+      const result = await multipartUpload.done();
+      
+      // Return the S3 URL
+      return json({ 
+        success: true,
+        url: result.Location,
+        filename: filename,
+        format: format
+      });
+    } catch (error) {
+      console.error('Error uploading to S3:', error);
+      return json({
+        success: false,
+        error: 'Failed to upload to S3',
+        details: error instanceof Error ? error.message : String(error)
+      }, { status: 500 });
+    }
   } catch (error) {
     console.error("Error generating image:", error);
-    return new Response(
-      JSON.stringify({ 
-        error: "Error processing image",
-        details: error instanceof Error ? error.message : "Unknown error"
-      }), { 
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return json({ 
+      success: false,
+      error: "Error processing image",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 });
   }
 };
