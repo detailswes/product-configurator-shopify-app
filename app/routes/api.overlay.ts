@@ -95,7 +95,7 @@ export const action: ActionFunction = async ({ request }) => {
     if (!baseSvg.includes('fill=')) {
       baseSvg = baseSvg.replace(
         '<svg',
-        `<svg><rect width="100%" height="100%" fill="${backgroundColorData.hex_value}"/>`
+        `<svg fill="${backgroundColorData.hex_value}"`
       );
     } else {
       baseSvg = baseSvg.replace(/fill="[^"]*"/g, `fill="${backgroundColorData.hex_value}"`);

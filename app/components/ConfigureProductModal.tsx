@@ -79,58 +79,6 @@ interface ProductConfigForm {
   shapeSections: ShapeSection[];
 }
 
-interface ColorPrice {
-  color_id: number;
-  additional_price: string;
-}
-
-interface ConfiguredImage {
-  image_id?: number;
-  id?: number;
-  additional_price?: number;
-}
-
-interface ConfiguredShape {
-  shape_id?: number;
-  id?: number;
-  additional_price?: number;
-}
-
-interface ExistingConfigData {
-  data: {
-    images: {
-      adaSignageImages: {
-        id: number;
-        url: string;
-      };
-      additional_price: number;
-    }[];
-    colors: {
-      availableColors: {
-        id: number;
-        color_name: string;
-        hex_value: string;
-      };
-    }[];
-    backgroundColors: {
-      availableColors: {
-        id: number;
-        color_name: string;
-        hex_value: string;
-      };
-    }[];
-    shapesSizes: {
-      availableShapesSizes: {
-        id: number;
-        shape_name: string;
-        image: string;
-        height?: number;
-        width?: number;
-      };
-      additional_price: number;
-    }[];
-  };
-}
 
 interface ConfigureProductModalProps {
   open: boolean;

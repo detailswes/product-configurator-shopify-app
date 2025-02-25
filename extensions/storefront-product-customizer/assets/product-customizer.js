@@ -547,7 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:37743/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:33715/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -615,9 +615,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             text,
             format = "png",
           } = options;
-          
+
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch("http://localhost:37743/api/overlay", {
+          const response = await fetch("http://localhost:33715/api/overlay", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -631,22 +631,21 @@ document.addEventListener("DOMContentLoaded", async () => {
               format,
             }),
           });
-      
+
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Failed to generate image");
           }
-      
+
           // The API now returns JSON with the S3 URL directly
           const result = await response.json();
-          
+
           if (!result.success) {
             throw new Error(result.error || "Failed to process image");
           }
-          
+
           // Return the S3 URL from the response
           return result.url;
-          
         } catch (error) {
           console.error("Error generating custom image:", error);
           throw error;
@@ -667,30 +666,23 @@ document.addEventListener("DOMContentLoaded", async () => {
           try {
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
-
+    
             const quantityInput = container.querySelector("#quantity");
             const quantity = parseInt(quantityInput.value) || 1;
             const customText = container.querySelector("#overlay-text").value;
-
-            // Get selected options and their IDs
-            const selectedImage = container
-              .querySelector(".image-option .checkmark.active")
-              ?.closest(".image-option");
-            const selectedShape = container
-              .querySelector(".shape-option .checkmark.active")
-              ?.closest(".shape-option");
-            const selectedColor = container.querySelector(
-              ".color-swatch.selected",
-            );
-            const selectedBgColor = container.querySelector(
-              ".bgColor-swatch.selected",
-            );
-            // We need to get IDs from the data attributes or extract them from the dataset
+    
+            // Extract IDs
             const imageId = parseInt(selectedOptions?.imageId) || allImages[0].id;
             const shapeId = parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
             const colorId = parseInt(selectedOptions?.colorId) || allColors[0].id;
             const bgColorId = parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
-
+    
+            // Find the full objects from arrays to get names
+            const selectedImageObj = allImages.find(img => img.id === imageId);
+            const selectedShapeObj = allShapesSizes.find(shape => shape.id === shapeId);
+            const selectedColorObj = allColors.find(color => color.id === colorId);
+            const selectedBgColorObj = allBackgroundColors.find(color => color.id === bgColorId);
+    
             // Generate the custom image and get S3 URL
             const customImageUrl = await generateCustomImage({
               shapeId: shapeId,
@@ -700,36 +692,35 @@ document.addEventListener("DOMContentLoaded", async () => {
               text: customText,
               format: "png",
             });
-            // Get the product handle
-            const productHandle =
-              window.location.pathname.split("/products/")[1]?.split("?")[0] ||
+    
+            const productHandle = window.location.pathname.split("/products/")[1]?.split("?")[0] ||
               container.getAttribute("data-product-handle");
-
+    
             if (!productHandle) {
               alert("Could not add to cart: Product information missing");
               return;
             }
-
-            // Prepare cart data with the custom image URL
+    
+            // Prepare cart data with names instead of URLs/hex values
             const formData = {
               items: [
                 {
                   id: productHandle,
                   quantity: quantity,
+                  sections: ["cart-drawer", "cart-icon-bubble"],
                   properties: {
                     "Custom Text": customText,
-                    "Selected Image":
-                      selectedImage?.querySelector("img")?.dataset.url || "",
-                    "Selected Shape":
-                      selectedShape?.querySelector("img")?.dataset.url || "",
-                    "Text Color": selectedColor?.dataset.color || "",
-                    "Background Color": selectedBgColor?.dataset.color || "",
+                    "Selected Image": selectedImageObj?.image_name || "Default Image",
+                    "Selected Shape": selectedShapeObj?.shape_name || "Default Shape",
+                    "Text Color": selectedColorObj?.color_name || "Default Color",
+                    "Background Color": selectedBgColorObj?.color_name || "Default Background",
                     _custom_image: customImageUrl,
+                    "Final Image": customImageUrl,
                   },
                 },
               ],
             };
-
+    
             // Call addToCart with formData
             addToCart(formData);
           } catch (error) {
@@ -757,11 +748,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Create the cart data with the variant ID
             const cartData = {
+              sections: ["header", "cart-drawer"],
               items: [
                 {
                   id: variant.id, // Use variant ID instead of product ID
                   quantity: formData.items[0].quantity,
                   properties: formData.items[0].properties,
+                  sections: ["header", "cart-drawer"],
                 },
               ],
             };
@@ -775,11 +768,83 @@ document.addEventListener("DOMContentLoaded", async () => {
               body: JSON.stringify(cartData),
             });
           })
-          .then((response) => {
+          .then(async (response) => {
             if (!response.ok) {
               return response.json().then((error) => Promise.reject(error));
             }
-            return response.json();
+
+            const data = await response.json();
+            if (data.sections && data.sections.header) {
+              // Create a temporary container to parse the new header HTML
+              const tempContainer = document.createElement('div');
+              tempContainer.innerHTML = data.sections.header;
+              
+              // Find the header element in the current page
+              const currentHeader = document.querySelector('header') || 
+                                    document.querySelector('.header') || 
+                                    document.querySelector('#header') || 
+                                    document.querySelector('[data-section-type="header"]');
+              
+              if (currentHeader) {
+                // 1. Save any custom elements that need to be preserved
+                const customImages = Array.from(currentHeader.querySelectorAll('img[data-custom="true"]'));
+                const customElements = Array.from(currentHeader.querySelectorAll('[data-preserve="true"]'));
+                
+                // 2. Get the new header element from the parsed container
+                const newHeader = tempContainer.querySelector('header') || 
+                                  tempContainer.querySelector('.header') || 
+                                  tempContainer.querySelector('#header') || 
+                                  tempContainer.firstElementChild;
+                
+                if (newHeader) {
+                  // 3. Replace the header content
+                  currentHeader.innerHTML = newHeader.innerHTML;
+                  
+                  // 4. Re-insert preserved elements to their original positions
+                  customImages.forEach(img => {
+                    const position = img.getAttribute('data-position');
+                    if (position) {
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
+                      if (placeholder) {
+                        placeholder.parentNode.replaceChild(img, placeholder);
+                      }
+                    }
+                  });
+                  
+                  customElements.forEach(el => {
+                    const position = el.getAttribute('data-position');
+                    if (position) {
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
+                      if (placeholder) {
+                        placeholder.parentNode.replaceChild(el, placeholder);
+                      }
+                    }
+                  });
+                  
+                  // 5. Re-initialize any scripts/functionality that needs to run after DOM update
+                  if (typeof window.reinitHeader === 'function') {
+                    window.reinitHeader();
+                  }
+                  
+                  // 6. Re-attach event listeners
+                  attachHeaderEventListeners();
+                }
+              }
+            }
+            
+            // Helper function to re-attach event listeners to header elements
+            function attachHeaderEventListeners() {
+              // Example: Re-attach click events to cart toggle buttons
+              const cartToggle = document.querySelector('.cart-toggle');
+              if (cartToggle) {
+                cartToggle.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  // Your cart toggle logic here
+                });
+              }
+              
+              // Add other event listeners as needed
+            }
           })
           .then(() => {
             // After successful add, update the cart using the update API
@@ -798,6 +863,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           })
           .then((response) => response.json())
           .then((cart) => {
+            // Store cart data in window object for checkout
+            window.currentCart = cart;
+
             // If you're using a cart drawer, trigger its update
             if (
               typeof window.Shopify !== "undefined" &&
