@@ -631,6 +631,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               format,
             }),
           });
+          console.log("response",response);
 
           if (!response.ok) {
             const errorData = await response.json();
