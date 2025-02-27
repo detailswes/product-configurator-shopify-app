@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "2cfed91f33894ab1ddd58554811acc96"
-application_url = "https://glucose-reproductive-handling-thread.trycloudflare.com"
+application_url = "https://product-configurator-shopify-app.onrender.com"
 embedded = true
 name = "product-app"
 handle = "shopify-product-configurator-51"
@@ -23,9 +23,9 @@ scopes = "write_products, read_products, write_files, read_files, write_orders, 
 
 [auth]
 redirect_urls = [
-  "https://players-week-automatic-presented.trycloudflare.com/auth/callback",
-  "https://players-week-automatic-presented.trycloudflare.com/auth/shopify/callback",
-  "https://players-week-automatic-presented.trycloudflare.com/api/auth/callback"
+  "https://product-configurator-shopify-app.onrender.com/auth/callback",
+  "https://product-configurator-shopify-app.onrender.com/auth/shopify/callback",
+  "https://product-configurator-shopify-app.onrender.com/api/auth/callback"
 ]
 
 [pos]
