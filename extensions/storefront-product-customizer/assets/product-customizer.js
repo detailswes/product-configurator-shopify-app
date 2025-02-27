@@ -547,7 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:33715/api/productConfigurationList?product_id=${productId}`,
+        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -617,7 +617,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch("http://localhost:33715/api/overlay", {
+          const response = await fetch("https://product-configurator-shopify-app.onrender.com/api/overlay", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
