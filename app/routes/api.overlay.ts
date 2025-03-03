@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -28,6 +28,20 @@ interface RequestBody {
   format: "png" | "jpeg" | "webp" | "svg";
 }
 
+export const loader: LoaderFunction = async ({ request }) => {
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204, // No Content
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Or your Shopify store domain
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    });
+  }
+  return new Response("Method Not Allowed", { status: 405 });
+};
+
 export const action: ActionFunction = async ({ request }) => {
 
   if (request.method === "OPTIONS") {
@@ -43,12 +57,7 @@ export const action: ActionFunction = async ({ request }) => {
   // Only allow POST requests
   if (request.method !== "POST") {
     return new Response("Method not allowed", {
-      status: 405,
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
+      status: 405
     });
   }
 
