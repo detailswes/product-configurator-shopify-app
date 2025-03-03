@@ -29,6 +29,17 @@ interface RequestBody {
 }
 
 export const action: ActionFunction = async ({ request }) => {
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204, // No content
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Or specify your PDP domain
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    });
+  }
   // Only allow POST requests
   if (request.method !== "POST") {
     return new Response("Method not allowed", {
@@ -224,7 +235,7 @@ export const action: ActionFunction = async ({ request }) => {
           headers: {
             "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         },
       );
