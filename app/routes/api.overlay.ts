@@ -35,8 +35,8 @@ export const action: ActionFunction = async ({ request }) => {
       status: 405,
       headers: {
         "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-        "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   }
@@ -223,8 +223,8 @@ export const action: ActionFunction = async ({ request }) => {
         {
           headers: {
             "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-            "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         },
       );
