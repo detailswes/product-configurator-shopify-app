@@ -1,17 +1,17 @@
 import sharp from "sharp";
 import type { ActionFunction } from "@remix-run/node";
-import { json } from '@remix-run/node';
-import { S3Client } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
+import { json } from "@remix-run/node";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import prisma from "app/db.server";
 
 // Configure AWS S3 client
 const s3Client = new S3Client({
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 });
 
 interface ImageMetadata {
@@ -31,20 +31,37 @@ interface RequestBody {
 export const action: ActionFunction = async ({ request }) => {
   // Only allow POST requests
   if (request.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
+        "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      },
+    });
   }
 
   try {
     // Parse the request body
-    const body = await request.json() as RequestBody;
-    const { shapeId, imageId, colorId, bgColorId, text = "RESTROOM", format = "png" } = body;
+    const body = (await request.json()) as RequestBody;
+    const {
+      shapeId,
+      imageId,
+      colorId,
+      bgColorId,
+      text = "RESTROOM",
+      format = "png",
+    } = body;
 
     // Validate required fields
     if (!shapeId || !imageId || !colorId || !bgColorId) {
-      return json({ 
-        error: "Missing required fields",
-        required: ["shapeId", "imageId", "colorId", "bgColorId"]
-      }, { status: 400 });
+      return json(
+        {
+          error: "Missing required fields",
+          required: ["shapeId", "imageId", "colorId", "bgColorId"],
+        },
+        { status: 400 },
+      );
     }
 
     // Fetch shape data
@@ -52,7 +69,10 @@ export const action: ActionFunction = async ({ request }) => {
       where: { id: shapeId },
     });
     if (!shapesData?.image) {
-      return json({ error: "Shape not found or missing image" }, { status: 404 });
+      return json(
+        { error: "Shape not found or missing image" },
+        { status: 404 },
+      );
     }
 
     // Fetch image data
@@ -92,25 +112,28 @@ export const action: ActionFunction = async ({ request }) => {
     let baseSvg = await baseImageResponse.text();
 
     // Handle background color
-    if (!baseSvg.includes('fill=')) {
+    if (!baseSvg.includes("fill=")) {
       baseSvg = baseSvg.replace(
-        '<svg',
-        `<svg fill="${backgroundColorData.hex_value}"`
+        "<svg",
+        `<svg fill="${backgroundColorData.hex_value}"`,
       );
     } else {
-      baseSvg = baseSvg.replace(/fill="[^"]*"/g, `fill="${backgroundColorData.hex_value}"`);
+      baseSvg = baseSvg.replace(
+        /fill="[^"]*"/g,
+        `fill="${backgroundColorData.hex_value}"`,
+      );
     }
 
     // Convert base SVG to PNG buffer
     const baseImageBuffer = await sharp(Buffer.from(baseSvg))
-    .resize(500, 500)
-    .toFormat("png")
-    .toBuffer();
+      .resize(500, 500)
+      .toFormat("png")
+      .toBuffer();
 
     // Process SVG template with color
     svgTemplate = svgTemplate.replace(
       /fill="[^"]*"/g,
-      `fill="${colorData.hex_value}"`
+      `fill="${colorData.hex_value}"`,
     );
 
     // Create overlay buffer
@@ -120,14 +143,24 @@ export const action: ActionFunction = async ({ request }) => {
       .toBuffer();
 
     // Get image metadata
-    const baseImageMetadata = (await sharp(baseImageBuffer).metadata()) as ImageMetadata;
-    const overlayMetadata = (await sharp(overlayBuffer).metadata()) as ImageMetadata;
+    const baseImageMetadata = (await sharp(
+      baseImageBuffer,
+    ).metadata()) as ImageMetadata;
+    const overlayMetadata = (await sharp(
+      overlayBuffer,
+    ).metadata()) as ImageMetadata;
 
     // Calculate positioning
-    const left = Math.floor((baseImageMetadata.width - overlayMetadata.width) / 2);
-    const top = Math.floor((baseImageMetadata.height - overlayMetadata.height) / 2);
+    const left = Math.floor(
+      (baseImageMetadata.width - overlayMetadata.width) / 2,
+    );
+    const top = Math.floor(
+      (baseImageMetadata.height - overlayMetadata.height) / 2,
+    );
 
-    const brailleText = text.toUpperCase().split("")
+    const brailleText = text
+      .toUpperCase()
+      .split("")
       .map(
         (char) =>
           "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿"[
@@ -162,10 +195,10 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Generate a unique filename
     const filename = `customized-sign-${Date.now()}.${format}`;
-    
+
     // Upload the generated image to S3
     const uploadParams = {
-      Bucket: 'foodieland-bucket',
+      Bucket: "foodieland-bucket",
       Key: `customized-signs/${filename}`,
       Body: finalImageBuffer,
       ContentType: `image/${format}`,
@@ -173,33 +206,48 @@ export const action: ActionFunction = async ({ request }) => {
 
     const multipartUpload = new Upload({
       client: s3Client,
-      params: uploadParams
+      params: uploadParams,
     });
 
     try {
       const result = await multipartUpload.done();
-      
+
       // Return the S3 URL
-      return json({ 
-        success: true,
-        url: result.Location,
-        filename: filename,
-        format: format
-      });
+      return json(
+        {
+          success: true,
+          url: result.Location,
+          filename: filename,
+          format: format,
+        },
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
+            "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type,Authorization",
+          },
+        },
+      );
     } catch (error) {
-      console.error('Error uploading to S3:', error);
-      return json({
-        success: false,
-        error: 'Failed to upload to S3',
-        details: error instanceof Error ? error.message : String(error)
-      }, { status: 500 });
+      console.error("Error uploading to S3:", error);
+      return json(
+        {
+          success: false,
+          error: "Failed to upload to S3",
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 500 },
+      );
     }
   } catch (error) {
     console.error("Error generating image:", error);
-    return json({ 
-      success: false,
-      error: "Error processing image",
-      details: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 });
+    return json(
+      {
+        success: false,
+        error: "Error processing image",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 };
