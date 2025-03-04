@@ -320,12 +320,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (shapeUrl) {
       try {
+        console.log("coming here 1");
         // Fetch the SVG content
         const response = await fetch(shapeUrl, {
           mode: "cors",
           method: "GET",
-          status: 200,
         });
+        console.log("response", response);
         const svgText = await response.text();
 
         // Create a temporary div to parse SVG
@@ -366,7 +367,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
       } catch (error) {
-        console.error("Error loading SVG:", error);
+        console.error("Error loading SVG updateShapePreview:", error);
       }
     }
 
