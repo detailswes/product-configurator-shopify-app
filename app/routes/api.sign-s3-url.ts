@@ -5,7 +5,6 @@ import { generatePresignedUrl } from "app/utils/s3";
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const s3Url = url.searchParams.get("url");
-    console.log("s3Url",s3Url);
   if (!s3Url) {
     return json({ error: "Missing 'url' query parameter" }, { status: 400 });
   }
@@ -14,7 +13,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // Extract the object key from the S3 URL
     const objectKey = new URL(s3Url).pathname.slice(1); // Remove the leading slash
     const signedUrl = await generatePresignedUrl(objectKey);
-    console.log("signedUrl",signedUrl);
     return json({ signedUrl },{
         headers: {
           "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain

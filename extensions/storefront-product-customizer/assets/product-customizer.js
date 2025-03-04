@@ -178,11 +178,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                alt="Shape option" 
                class="shapes-sizes" 
                style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
-          <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
-          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
-            index === 0 ? "flex" : "none"
-          }; align-items: center; justify-content: center;">
-            <span style="color: white; font-size: 14px;">✓</span>
+               <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
+                 index === 0 ? "flex" : "none"
+                }; align-items: center; justify-content: center;">
+                <span style="color: white; font-size: 14px;">✓</span>
+                <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
           </div>
         </div>`,
       )
@@ -317,20 +317,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update shape preview function to handle SVG conversion
   async function updateShapePreview(container, shapeUrl, selectedElement) {
     const shapeContainer = container.querySelector("#shape-container");
-    console.log("shapeUrl",shapeUrl);
     if (shapeUrl) {
       try {
         const signedResponse = await fetch(
           `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
         );
-        console.log("signedResponse",signedResponse);
   
         if (!signedResponse.ok) {
           throw new Error(`HTTP error! status: ${signedResponse.status}`);
         }
   
         const data = await signedResponse.json();
-        console.log("data",data);
         // Fetch the SVG content
         const response = await fetch(data.signedUrl,{
           mode: "cors",
@@ -645,7 +642,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               format,
             }),
           });
-          console.log("response",response);
 
           if (!response.ok) {
             const errorData = await response.json();
