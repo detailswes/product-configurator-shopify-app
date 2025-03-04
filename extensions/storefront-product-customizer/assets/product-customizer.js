@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     bgColorId: null,
   };
 
-  console.log("hit 1");
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
   <div class="product-customizer-container">
@@ -140,7 +139,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Generate customization options HTML
   function generateCustomizationHTML(images, colors, bgColors, shapesSizes) {
-    console.log("hit 2");
     if (
       !images?.length &&
       !colors?.length &&
@@ -318,21 +316,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Update shape preview function to handle SVG conversion
   async function updateShapePreview(container, shapeUrl, selectedElement) {
-    console.log("hit 3",shapeUrl)
     const shapeContainer = container.querySelector("#shape-container");
 
     if (shapeUrl) {
       try {
-        console.log("coming here 1");
         // Fetch the SVG content
-        const response = await fetch(
-          "https://foodieland-bucket.s3.us-east-1.amazonaws.com/rectangle.svg?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDbbq3%2FZ2F2qLT7RImNJv8%2FKuF6lW94%2BaNg3dpIRssRfgIhAKlM1XeEQQNRidRAqDcshdrvCgb01eo5ZWIKPVuMrE6tKtQDCOv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMMzYwNzM5MjEyMTM1IgyRfu2kwX59k4WJ5mEqqAPJpu7c73KPCbr36tXRmMBWdE%2BbwVycQ4jsb2UlvubJ6Ni6wxdL6OqF8hEEDeqtFNRFFnAhB%2BlLnSnZ%2BqHX%2FlKZCdy8bjvXDjSGW1rh%2FCUGL%2BRfgIEiFMF%2FW5swAeXBaGbkmyB7NX%2F4ufMWyPng4yNzlKBii9HeixWq2m%2FhzOrO1Jwwuij9XfLh7DmKapBzXLtTZ3k%2FEShmOuHcgtwe1jgr4cTSfB9O3UNnj8D%2FA3Jxfj7oJdxK6UQrJnuhpL%2F8T7F%2FRSahXifOaljTrYwDg6R0j%2F0J8l5AjkIyq%2B8oA8%2B7qu6xsIcQ9eeQG7KPd2WD9Zg3jNYoodM72zG1%2BWgabm4%2FuVw8wmnHYIlFWRYFcJMHeRKJF4g2rxeysw%2B%2BHeFYYJcv2cQ%2FPIx8RF7ICYjpimN%2BZ1LTrl8pubb2w3vzvcExiYxyO0yXT84Thm64qrNdpU5zByp%2FNzJdulyRkFMFSBLvaE6CnP6vrYbY%2FwtRsNztoDMgX5rnNeMnTyCcjrfz0z9T1Ss1tR5ADfy0OyED9ammsdaKhsm8V5Bm9D%2FJFyQNSVszDitBZOU0MJermr4GOuMCbkza7OUA4IZzIh5%2FQcuajtVD7Dvyxc%2FH2P8egIioQ0SXO0ZpTiazoCs3PW5i34ongxvJrebF8mmgcBJH4kUdbWWFoIz%2FVF6FgRTA8fXwR6uRXxP7Vd8zyqjKlu09w9LeZxXDRiOcztM71URtDazPsl4%2Bj%2BeTLa8ndinLUBkyju1Y%2FjWS5JJuWs8gm3wp6fIEL5r2UzKp5FPXKTScRjyv8EZ%2BRtwwMap02QTLUPZGE2D1BS96FOMvUMBu0oIjbucU%2B5AFzX38Mwt65llsVjtV6RZNZXrxb7XGdP7GudwuYEfJK%2Fw8aHwHSU2%2FZ%2Fs3%2BTcZgy3rVAdTzCtgHNuZ91UgsdyqnkCUcYnk45PGi0CwSfqvfykDwzcnvS9M0HWxyM35VRRKllcdjIFCWpU2xNglvGXKYB%2BTr%2F2z90s0fvBlI8Kx3w1%2B%2BRBPXCdC6JctMPbhq88WG9Dg66KG3Qh9gajHN9XScQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAVH7N3RNTSPOV5BGN%2F20250304%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250304T101204Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=839fe6b7e37468cdd4e270133dad28553765fdee96d90ccf5b25f48f700d9d5b",
-          {
-            mode: "cors",
-            method: "GET",
-          },
-        );
-        console.log("response", response);
+        const response = await fetch(shapeUrl,{
+          mode: "cors",
+          method:"GET",
+        });
         const svgText = await response.text();
 
         // Create a temporary div to parse SVG
@@ -373,7 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
       } catch (error) {
-        console.error("Error loading SVG updateShapePreview:", error);
+        console.error("Error loading SVG:", error);
       }
     }
 
@@ -396,7 +388,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // New function to update SVG color
   function updateShapeColor(container, colorCode) {
-    console.log("hit 4")
     const svg = container.querySelector("svg");
     if (svg) {
       const shapeElements = svg.querySelectorAll(
@@ -520,7 +511,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     productDescription,
   ) {
     try {
-      console.log("hit 5")
       // Set initial HTML
       container.innerHTML = initialHTML;
       setupQuantityValidation();
@@ -630,24 +620,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch(
-            "https://product-configurator-shopify-app.onrender.com/api/overlay",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                shapeId,
-                imageId,
-                colorId,
-                bgColorId,
-                text,
-                format,
-              }),
+          const response = await fetch("https://product-configurator-shopify-app.onrender.com/api/overlay", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          );
-          console.log("response", response);
+            body: JSON.stringify({
+              shapeId,
+              imageId,
+              colorId,
+              bgColorId,
+              text,
+              format,
+            }),
+          });
+          console.log("response",response);
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -683,35 +670,23 @@ document.addEventListener("DOMContentLoaded", async () => {
           try {
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
-
+    
             const quantityInput = container.querySelector("#quantity");
             const quantity = parseInt(quantityInput.value) || 1;
             const customText = container.querySelector("#overlay-text").value;
-
+    
             // Extract IDs
-            const imageId =
-              parseInt(selectedOptions?.imageId) || allImages[0].id;
-            const shapeId =
-              parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
-            const colorId =
-              parseInt(selectedOptions?.colorId) || allColors[0].id;
-            const bgColorId =
-              parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
-
+            const imageId = parseInt(selectedOptions?.imageId) || allImages[0].id;
+            const shapeId = parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
+            const colorId = parseInt(selectedOptions?.colorId) || allColors[0].id;
+            const bgColorId = parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
+    
             // Find the full objects from arrays to get names
-            const selectedImageObj = allImages.find(
-              (img) => img.id === imageId,
-            );
-            const selectedShapeObj = allShapesSizes.find(
-              (shape) => shape.id === shapeId,
-            );
-            const selectedColorObj = allColors.find(
-              (color) => color.id === colorId,
-            );
-            const selectedBgColorObj = allBackgroundColors.find(
-              (color) => color.id === bgColorId,
-            );
-
+            const selectedImageObj = allImages.find(img => img.id === imageId);
+            const selectedShapeObj = allShapesSizes.find(shape => shape.id === shapeId);
+            const selectedColorObj = allColors.find(color => color.id === colorId);
+            const selectedBgColorObj = allBackgroundColors.find(color => color.id === bgColorId);
+    
             // Generate the custom image and get S3 URL
             const customImageUrl = await generateCustomImage({
               shapeId: shapeId,
@@ -721,16 +696,15 @@ document.addEventListener("DOMContentLoaded", async () => {
               text: customText,
               format: "png",
             });
-
-            const productHandle =
-              window.location.pathname.split("/products/")[1]?.split("?")[0] ||
+    
+            const productHandle = window.location.pathname.split("/products/")[1]?.split("?")[0] ||
               container.getAttribute("data-product-handle");
-
+    
             if (!productHandle) {
               alert("Could not add to cart: Product information missing");
               return;
             }
-
+    
             // Prepare cart data with names instead of URLs/hex values
             const formData = {
               items: [
@@ -740,21 +714,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                   sections: ["cart-drawer", "cart-icon-bubble"],
                   properties: {
                     "Custom Text": customText,
-                    "Selected Image":
-                      selectedImageObj?.image_name || "Default Image",
-                    "Selected Shape":
-                      selectedShapeObj?.shape_name || "Default Shape",
-                    "Text Color":
-                      selectedColorObj?.color_name || "Default Color",
-                    "Background Color":
-                      selectedBgColorObj?.color_name || "Default Background",
+                    "Selected Image": selectedImageObj?.image_name || "Default Image",
+                    "Selected Shape": selectedShapeObj?.shape_name || "Default Shape",
+                    "Text Color": selectedColorObj?.color_name || "Default Color",
+                    "Background Color": selectedBgColorObj?.color_name || "Default Background",
                     _custom_image: customImageUrl,
                     "Final Image": customImageUrl,
                   },
                 },
               ],
             };
-
+    
             // Call addToCart with formData
             addToCart(formData);
           } catch (error) {
@@ -810,83 +780,73 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             if (data.sections && data.sections.header) {
               // Create a temporary container to parse the new header HTML
-              const tempContainer = document.createElement("div");
+              const tempContainer = document.createElement('div');
               tempContainer.innerHTML = data.sections.header;
-
+              
               // Find the header element in the current page
-              const currentHeader =
-                document.querySelector("header") ||
-                document.querySelector(".header") ||
-                document.querySelector("#header") ||
-                document.querySelector('[data-section-type="header"]');
-
+              const currentHeader = document.querySelector('header') || 
+                                    document.querySelector('.header') || 
+                                    document.querySelector('#header') || 
+                                    document.querySelector('[data-section-type="header"]');
+              
               if (currentHeader) {
                 // 1. Save any custom elements that need to be preserved
-                const customImages = Array.from(
-                  currentHeader.querySelectorAll('img[data-custom="true"]'),
-                );
-                const customElements = Array.from(
-                  currentHeader.querySelectorAll('[data-preserve="true"]'),
-                );
-
+                const customImages = Array.from(currentHeader.querySelectorAll('img[data-custom="true"]'));
+                const customElements = Array.from(currentHeader.querySelectorAll('[data-preserve="true"]'));
+                
                 // 2. Get the new header element from the parsed container
-                const newHeader =
-                  tempContainer.querySelector("header") ||
-                  tempContainer.querySelector(".header") ||
-                  tempContainer.querySelector("#header") ||
-                  tempContainer.firstElementChild;
-
+                const newHeader = tempContainer.querySelector('header') || 
+                                  tempContainer.querySelector('.header') || 
+                                  tempContainer.querySelector('#header') || 
+                                  tempContainer.firstElementChild;
+                
                 if (newHeader) {
                   // 3. Replace the header content
                   currentHeader.innerHTML = newHeader.innerHTML;
-
+                  
                   // 4. Re-insert preserved elements to their original positions
-                  customImages.forEach((img) => {
-                    const position = img.getAttribute("data-position");
+                  customImages.forEach(img => {
+                    const position = img.getAttribute('data-position');
                     if (position) {
-                      const placeholder = currentHeader.querySelector(
-                        `[data-position="${position}"]`,
-                      );
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
                       if (placeholder) {
                         placeholder.parentNode.replaceChild(img, placeholder);
                       }
                     }
                   });
-
-                  customElements.forEach((el) => {
-                    const position = el.getAttribute("data-position");
+                  
+                  customElements.forEach(el => {
+                    const position = el.getAttribute('data-position');
                     if (position) {
-                      const placeholder = currentHeader.querySelector(
-                        `[data-position="${position}"]`,
-                      );
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
                       if (placeholder) {
                         placeholder.parentNode.replaceChild(el, placeholder);
                       }
                     }
                   });
-
+                  
                   // 5. Re-initialize any scripts/functionality that needs to run after DOM update
-                  if (typeof window.reinitHeader === "function") {
+                  if (typeof window.reinitHeader === 'function') {
                     window.reinitHeader();
                   }
-
+                  
                   // 6. Re-attach event listeners
                   attachHeaderEventListeners();
                 }
               }
             }
-
+            
             // Helper function to re-attach event listeners to header elements
             function attachHeaderEventListeners() {
               // Example: Re-attach click events to cart toggle buttons
-              const cartToggle = document.querySelector(".cart-toggle");
+              const cartToggle = document.querySelector('.cart-toggle');
               if (cartToggle) {
-                cartToggle.addEventListener("click", function (e) {
+                cartToggle.addEventListener('click', function(e) {
                   e.preventDefault();
                   // Your cart toggle logic here
                 });
               }
-
+              
               // Add other event listeners as needed
             }
           })
