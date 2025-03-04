@@ -320,8 +320,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (shapeUrl) {
       try {
+        const signedResponse = await fetch(
+          `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url`,
+        );
+        console.log("signedResponse",signedResponse);
+  
+        if (!signedResponse.ok) {
+          throw new Error(`HTTP error! status: ${signedResponse.status}`);
+        }
+  
+        const data = await signedResponse.json();
+        console.log("data",data);
         // Fetch the SVG content
-        const response = await fetch(shapeUrl,{
+        const response = await fetch(data.signedUrl,{
           mode: "cors",
           method:"GET",
         });
