@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update shape preview function to handle SVG conversion
   async function updateShapePreview(container, shapeUrl, selectedElement) {
     const shapeContainer = container.querySelector("#shape-container");
-
+    console.log("shapeUrl",shapeUrl);
     if (shapeUrl) {
       try {
         const signedResponse = await fetch(
