@@ -323,6 +323,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Fetch the SVG content
         const response = await fetch(shapeUrl,{
           mode: "cors",
+          headers: {
+            "Content-Type": "application/xml", // Explicitly specify the type
+          },
         });
         const svgText = await response.text();
 
