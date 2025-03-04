@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const encodedUrl = encodeURI(shapeUrl);
 
         const response = await fetch(encodedUrl, {
-          mode: "cors",
+          mode: "no-cors",
           headers: {
             Origin: "https://blue-ridge-sign.myshopify.com", // Explicitly set the origin
             "Content-Type": "application/xml",
