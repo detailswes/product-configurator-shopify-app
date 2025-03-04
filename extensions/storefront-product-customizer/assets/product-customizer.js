@@ -324,10 +324,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const encodedUrl = encodeURI(shapeUrl);
 
         const response = await fetch(encodedUrl, {
-          mode: "no-cors",
+          mode: "cors",
           headers: {
-            Origin: "https://blue-ridge-sign.myshopify.com", // Explicitly set the origin
-            "Content-Type": "application/xml",
+            Origin: "https://blue-ridge-sign.myshopify.com", // Force request origin
+            "Content-Type": "image/svg+xml",
           },
         });
         const svgText = await response.text();
