@@ -178,11 +178,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                alt="Shape option" 
                class="shapes-sizes" 
                style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
-               <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
-                 index === 0 ? "flex" : "none"
-                }; align-items: center; justify-content: center;">
-                <span style="color: white; font-size: 14px;">✓</span>
-                <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
+          <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
+          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: flex;
+          <!--${
+            index === 0 ? "flex" : "none"
+          }; -->
+          align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 14px;">✓</span>
           </div>
         </div>`,
       )
