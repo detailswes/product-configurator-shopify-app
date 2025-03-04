@@ -321,7 +321,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (shapeUrl) {
       try {
         const signedResponse = await fetch(
-          `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url`,
+          `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
         );
         console.log("signedResponse",signedResponse);
   
