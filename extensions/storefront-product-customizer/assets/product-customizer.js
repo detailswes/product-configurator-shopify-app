@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapesOptionsHTML = shapesSizes
       .map(
         (shape, index) => `
-        <div class="shape-option" data-id=${shape.id} style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
+        <div class="shape-option" data-id=${shape.id}>
           <img src="${shape.image}" 
                data-url="${shape.image}" 
                data-price="${shape.additional_price || 0}"
@@ -318,7 +318,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function updateShapePreview(container, shapeUrl, selectedElement) {
     const shapeContainer = container.querySelector("#shape-container");
     if (shapeUrl) {
-      shapeContainer.src = imageUrl;
+      shapeContainer.src = shapeUrl;
       shapeContainer.classList.remove("hidden");
     }
 
