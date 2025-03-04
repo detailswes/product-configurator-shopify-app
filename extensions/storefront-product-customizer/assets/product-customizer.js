@@ -321,13 +321,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (shapeUrl) {
       try {
         // Fetch the SVG content
-        const encodedUrl = encodeURI(shapeUrl);
-
-        const response = await fetch(encodedUrl, {
+        const response = await fetch(shapeUrl,{
           mode: "cors",
           headers: {
-            Origin: "https://blue-ridge-sign.myshopify.com", // Force request origin
-            "Content-Type": "image/svg+xml",
+            "Content-Type": "application/xml", // Explicitly specify the type
           },
         });
         const svgText = await response.text();
@@ -625,24 +622,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch(
-            "https://product-configurator-shopify-app.onrender.com/api/overlay",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                shapeId,
-                imageId,
-                colorId,
-                bgColorId,
-                text,
-                format,
-              }),
+          const response = await fetch("https://product-configurator-shopify-app.onrender.com/api/overlay", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          );
-          console.log("response", response);
+            body: JSON.stringify({
+              shapeId,
+              imageId,
+              colorId,
+              bgColorId,
+              text,
+              format,
+            }),
+          });
+          console.log("response",response);
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -678,35 +672,23 @@ document.addEventListener("DOMContentLoaded", async () => {
           try {
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
-
+    
             const quantityInput = container.querySelector("#quantity");
             const quantity = parseInt(quantityInput.value) || 1;
             const customText = container.querySelector("#overlay-text").value;
-
+    
             // Extract IDs
-            const imageId =
-              parseInt(selectedOptions?.imageId) || allImages[0].id;
-            const shapeId =
-              parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
-            const colorId =
-              parseInt(selectedOptions?.colorId) || allColors[0].id;
-            const bgColorId =
-              parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
-
+            const imageId = parseInt(selectedOptions?.imageId) || allImages[0].id;
+            const shapeId = parseInt(selectedOptions?.shapeId) || allShapesSizes[0].id;
+            const colorId = parseInt(selectedOptions?.colorId) || allColors[0].id;
+            const bgColorId = parseInt(selectedOptions?.bgColorId) || allBackgroundColors[0].id;
+    
             // Find the full objects from arrays to get names
-            const selectedImageObj = allImages.find(
-              (img) => img.id === imageId,
-            );
-            const selectedShapeObj = allShapesSizes.find(
-              (shape) => shape.id === shapeId,
-            );
-            const selectedColorObj = allColors.find(
-              (color) => color.id === colorId,
-            );
-            const selectedBgColorObj = allBackgroundColors.find(
-              (color) => color.id === bgColorId,
-            );
-
+            const selectedImageObj = allImages.find(img => img.id === imageId);
+            const selectedShapeObj = allShapesSizes.find(shape => shape.id === shapeId);
+            const selectedColorObj = allColors.find(color => color.id === colorId);
+            const selectedBgColorObj = allBackgroundColors.find(color => color.id === bgColorId);
+    
             // Generate the custom image and get S3 URL
             const customImageUrl = await generateCustomImage({
               shapeId: shapeId,
@@ -716,16 +698,15 @@ document.addEventListener("DOMContentLoaded", async () => {
               text: customText,
               format: "png",
             });
-
-            const productHandle =
-              window.location.pathname.split("/products/")[1]?.split("?")[0] ||
+    
+            const productHandle = window.location.pathname.split("/products/")[1]?.split("?")[0] ||
               container.getAttribute("data-product-handle");
-
+    
             if (!productHandle) {
               alert("Could not add to cart: Product information missing");
               return;
             }
-
+    
             // Prepare cart data with names instead of URLs/hex values
             const formData = {
               items: [
@@ -735,21 +716,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                   sections: ["cart-drawer", "cart-icon-bubble"],
                   properties: {
                     "Custom Text": customText,
-                    "Selected Image":
-                      selectedImageObj?.image_name || "Default Image",
-                    "Selected Shape":
-                      selectedShapeObj?.shape_name || "Default Shape",
-                    "Text Color":
-                      selectedColorObj?.color_name || "Default Color",
-                    "Background Color":
-                      selectedBgColorObj?.color_name || "Default Background",
+                    "Selected Image": selectedImageObj?.image_name || "Default Image",
+                    "Selected Shape": selectedShapeObj?.shape_name || "Default Shape",
+                    "Text Color": selectedColorObj?.color_name || "Default Color",
+                    "Background Color": selectedBgColorObj?.color_name || "Default Background",
                     _custom_image: customImageUrl,
                     "Final Image": customImageUrl,
                   },
                 },
               ],
             };
-
+    
             // Call addToCart with formData
             addToCart(formData);
           } catch (error) {
@@ -805,83 +782,73 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             if (data.sections && data.sections.header) {
               // Create a temporary container to parse the new header HTML
-              const tempContainer = document.createElement("div");
+              const tempContainer = document.createElement('div');
               tempContainer.innerHTML = data.sections.header;
-
+              
               // Find the header element in the current page
-              const currentHeader =
-                document.querySelector("header") ||
-                document.querySelector(".header") ||
-                document.querySelector("#header") ||
-                document.querySelector('[data-section-type="header"]');
-
+              const currentHeader = document.querySelector('header') || 
+                                    document.querySelector('.header') || 
+                                    document.querySelector('#header') || 
+                                    document.querySelector('[data-section-type="header"]');
+              
               if (currentHeader) {
                 // 1. Save any custom elements that need to be preserved
-                const customImages = Array.from(
-                  currentHeader.querySelectorAll('img[data-custom="true"]'),
-                );
-                const customElements = Array.from(
-                  currentHeader.querySelectorAll('[data-preserve="true"]'),
-                );
-
+                const customImages = Array.from(currentHeader.querySelectorAll('img[data-custom="true"]'));
+                const customElements = Array.from(currentHeader.querySelectorAll('[data-preserve="true"]'));
+                
                 // 2. Get the new header element from the parsed container
-                const newHeader =
-                  tempContainer.querySelector("header") ||
-                  tempContainer.querySelector(".header") ||
-                  tempContainer.querySelector("#header") ||
-                  tempContainer.firstElementChild;
-
+                const newHeader = tempContainer.querySelector('header') || 
+                                  tempContainer.querySelector('.header') || 
+                                  tempContainer.querySelector('#header') || 
+                                  tempContainer.firstElementChild;
+                
                 if (newHeader) {
                   // 3. Replace the header content
                   currentHeader.innerHTML = newHeader.innerHTML;
-
+                  
                   // 4. Re-insert preserved elements to their original positions
-                  customImages.forEach((img) => {
-                    const position = img.getAttribute("data-position");
+                  customImages.forEach(img => {
+                    const position = img.getAttribute('data-position');
                     if (position) {
-                      const placeholder = currentHeader.querySelector(
-                        `[data-position="${position}"]`,
-                      );
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
                       if (placeholder) {
                         placeholder.parentNode.replaceChild(img, placeholder);
                       }
                     }
                   });
-
-                  customElements.forEach((el) => {
-                    const position = el.getAttribute("data-position");
+                  
+                  customElements.forEach(el => {
+                    const position = el.getAttribute('data-position');
                     if (position) {
-                      const placeholder = currentHeader.querySelector(
-                        `[data-position="${position}"]`,
-                      );
+                      const placeholder = currentHeader.querySelector(`[data-position="${position}"]`);
                       if (placeholder) {
                         placeholder.parentNode.replaceChild(el, placeholder);
                       }
                     }
                   });
-
+                  
                   // 5. Re-initialize any scripts/functionality that needs to run after DOM update
-                  if (typeof window.reinitHeader === "function") {
+                  if (typeof window.reinitHeader === 'function') {
                     window.reinitHeader();
                   }
-
+                  
                   // 6. Re-attach event listeners
                   attachHeaderEventListeners();
                 }
               }
             }
-
+            
             // Helper function to re-attach event listeners to header elements
             function attachHeaderEventListeners() {
               // Example: Re-attach click events to cart toggle buttons
-              const cartToggle = document.querySelector(".cart-toggle");
+              const cartToggle = document.querySelector('.cart-toggle');
               if (cartToggle) {
-                cartToggle.addEventListener("click", function (e) {
+                cartToggle.addEventListener('click', function(e) {
                   e.preventDefault();
                   // Your cart toggle logic here
                 });
               }
-
+              
               // Add other event listeners as needed
             }
           })
