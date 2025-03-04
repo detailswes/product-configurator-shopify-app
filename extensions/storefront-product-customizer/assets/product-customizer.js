@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapesOptionsHTML = shapesSizes
       .map(
         (shape, index) => `
-        <div class="shape-option" data-id=${shape.id}>
+        <div class="shape-option" data-id=${shape.id} style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
           <img src="${shape.image}" 
                data-url="${shape.image}" 
                data-price="${shape.additional_price || 0}"
@@ -317,63 +317,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update shape preview function to handle SVG conversion
   async function updateShapePreview(container, shapeUrl, selectedElement) {
     const shapeContainer = container.querySelector("#shape-container");
+
     if (shapeUrl) {
-      shapeContainer.src = shapeUrl;
-      shapeContainer.classList.remove("hidden");
+      try {
+        // Fetch the SVG content
+        const response = await fetch(shapeUrl,{
+          mode: "cors",
+        });
+        const svgText = await response.text();
+
+        // Create a temporary div to parse SVG
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+        const svgElement = svgDoc.querySelector("svg");
+
+        if (svgElement) {
+          // Set viewBox if it doesn't exist
+          if (!svgElement.getAttribute("viewBox")) {
+            const width = svgElement.getAttribute("width") || "600";
+            const height = svgElement.getAttribute("height") || "600";
+            svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
+          }
+
+          // Set width and height to 100%
+          svgElement.setAttribute("width", "100%");
+          svgElement.setAttribute("height", "100%");
+          svgElement.style.position = "absolute";
+          svgElement.style.top = "0";
+          svgElement.style.left = "0";
+
+          // Remove any existing SVG
+          const existingSvg = shapeContainer.querySelector("svg");
+          if (existingSvg) {
+            existingSvg.remove();
+          }
+
+          // Insert the new SVG as the first child
+          shapeContainer.insertBefore(svgElement, shapeContainer.firstChild);
+
+          // Apply current color if exists
+          const currentColor = container.querySelector(
+            ".bgColor-swatch.selected",
+          )?.dataset.color;
+          if (currentColor) {
+            updateShapeColor(container, currentColor);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading SVG:", error);
+      }
     }
-
-    // if (shapeUrl) {
-    //   try {
-    //     // Fetch the SVG content
-    //     const response = await fetch(shapeUrl,{
-    //       mode: "cors",
-    //       headers: {
-    //         "Content-Type": "application/xml", // Explicitly specify the type
-    //       },
-    //     });
-    //     const svgText = await response.text();
-
-    //     // Create a temporary div to parse SVG
-    //     const parser = new DOMParser();
-    //     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-    //     const svgElement = svgDoc.querySelector("svg");
-
-    //     if (svgElement) {
-    //       // Set viewBox if it doesn't exist
-    //       if (!svgElement.getAttribute("viewBox")) {
-    //         const width = svgElement.getAttribute("width") || "600";
-    //         const height = svgElement.getAttribute("height") || "600";
-    //         svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    //       }
-
-    //       // Set width and height to 100%
-    //       svgElement.setAttribute("width", "100%");
-    //       svgElement.setAttribute("height", "100%");
-    //       svgElement.style.position = "absolute";
-    //       svgElement.style.top = "0";
-    //       svgElement.style.left = "0";
-
-    //       // Remove any existing SVG
-    //       const existingSvg = shapeContainer.querySelector("svg");
-    //       if (existingSvg) {
-    //         existingSvg.remove();
-    //       }
-
-    //       // Insert the new SVG as the first child
-    //       shapeContainer.insertBefore(svgElement, shapeContainer.firstChild);
-
-    //       // Apply current color if exists
-    //       const currentColor = container.querySelector(
-    //         ".bgColor-swatch.selected",
-    //       )?.dataset.color;
-    //       if (currentColor) {
-    //         updateShapeColor(container, currentColor);
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error("Error loading SVG:", error);
-    //   }
-    // }
 
     // Update checkmarks for shapes
     container
