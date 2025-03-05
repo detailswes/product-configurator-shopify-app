@@ -38,9 +38,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("page-loader").style.display = "none";
   }
 
-  // Show loader when the page starts loading
-  showLoader();
-
   const selectedOptions = {
     imageId: null,
     shapeId: null,
