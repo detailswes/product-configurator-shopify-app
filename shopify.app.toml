@@ -8,6 +8,7 @@ handle = "shopify-product-configurator-51"
 
 [webhooks]
 api_version = "2024-10"
+base_url = "https://product-configurator-shopify-app.onrender.com"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]

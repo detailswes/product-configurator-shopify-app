@@ -101,6 +101,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   </div>
 `;
 
+  const BASE_URL = "/apps/";
+
   // Update text overlay
   function updateTextOverlay(container) {
     const textOverlay = container.querySelector("#overlay-text-display");
@@ -363,7 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         showLoader();
         const signedResponse = await fetch(
-          `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
+          `${BASE_URL}/api/sign-s3-url?url=${shapeUrl}`,
         );
 
         if (!signedResponse.ok) {
@@ -605,7 +607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
+        `${BASE_URL}/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -676,7 +678,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
           const response = await fetch(
-            "https://product-configurator-shopify-app.onrender.com/api/overlay",
+            `${BASE_URL}/api/overlay`,
             {
               method: "POST",
               headers: {
