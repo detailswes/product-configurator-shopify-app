@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   </style>
 `;
-  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
+  // document.body.insertAdjacentHTML("afterbegin", loaderHTML);
 
   // Function to show/hide loader
   function showLoader() {
