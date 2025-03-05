@@ -358,7 +358,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapeContainer = container.querySelector("#shape-container");
     if (shapeUrl) {
       try {
-        // showLoader();
+        showLoader();
         const signedResponse = await fetch(
           `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
         );
@@ -561,7 +561,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     productDescription,
   ) {
     try {
-      // showLoader(); // Show loader when fetching data
+      showLoader(); // Show loader when fetching data
 
       // Set initial HTML
       container.innerHTML = initialHTML;
@@ -722,7 +722,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (addToCartButton) {
         addToCartButton.addEventListener("click", async () => {
           try {
-            // showLoader(); 
+            showLoader(); 
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
 
