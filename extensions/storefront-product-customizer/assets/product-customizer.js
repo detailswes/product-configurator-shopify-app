@@ -1,49 +1,47 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const loaderHTML = `
-  <div id="page-loader" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;">
-    <div class="loader" style="
-      width: 50px;
-      height: 50px;
-      border: 5px solid #ccc;
-      border-top-color: #333;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;">
-    </div>
-  </div>
-  <style>
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-`;
-  // document.body.insertAdjacentHTML("afterbegin", loaderHTML);
-
-  // Function to show/hide loader
-  function showLoader() {
-    document.getElementById("page-loader").style.display = "flex";
-  }
-
-  function hideLoader() {
-    document.getElementById("page-loader").style.display = "none";
-  }
-
+  
   const selectedOptions = {
     imageId: null,
     shapeId: null,
     colorId: null,
     bgColorId: null,
   };
+
+  function showLoader(section) {
+    const container = document.querySelector(section);
+    if (container) {
+      container.innerHTML = `
+        <div class="section-loader" style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100px;">
+          <div class="loader" style="
+            width: 30px;
+            height: 30px;
+            border: 4px solid #ccc;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;">
+          </div>
+        </div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+    }
+  }
+
+  // Function to hide loader and replace it with content
+  function hideLoader(section, content) {
+    const container = document.querySelector(section);
+    if (container) {
+      container.innerHTML = content;
+    }
+  }
 
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
@@ -561,7 +559,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     productDescription,
   ) {
     try {
-      showLoader(); // Show loader when fetching data
+      showLoader(".product-details");
+      showLoader(".customization-options");
 
       // Set initial HTML
       container.innerHTML = initialHTML;
@@ -718,11 +717,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         allShapesSizes,
       );
       customizationOptionsElement.innerHTML = customizationHtml;
+      hideLoader(".product-details", `
+        <p>Product ID: <span class="product-id">${productId}</span></p>
+        <p style="font-weight:bold;"><span class="product-price">${productPrice}</span></p>
+      `);
+      hideLoader(".customization-options", customizationHtml);
       const addToCartButton = container.querySelector("#add-to-cart-btn");
       if (addToCartButton) {
         addToCartButton.addEventListener("click", async () => {
           try {
-            showLoader(); 
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
 
@@ -753,6 +756,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const selectedBgColorObj = allBackgroundColors.find(
               (color) => color.id === bgColorId,
             );
+
+            showLoader("#shape-container");
 
             // Generate the custom image and get S3 URL
             const customImageUrl = await generateCustomImage({
@@ -799,13 +804,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Call addToCart with formData
             addToCart(formData);
+            hideLoader("#shape-container", `<img id="preview-image" src="${customImageUrl}" alt="Custom Image">`);
           } catch (error) {
             console.error("Error generating custom image:", error);
             alert("Failed to generate custom image. Please try again.");
+            hideLoader("#shape-container", `<p class="error-message">Failed to generate image.</p>`);
           } finally {
             addToCartButton.disabled = false;
             addToCartButton.textContent = "Add To Cart";
-            hideLoader();
           }
         });
       }
