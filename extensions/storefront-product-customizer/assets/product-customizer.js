@@ -1,13 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const selectedOptions = {
-    imageId: null,
-    shapeId: null,
-    colorId: null,
-    bgColorId: null,
-  };
 
-  const loaderHTML = `
-    <div class="loader-overlay" style="
+  function createLoader() {
+    const loader = document.createElement('div');
+    loader.id = 'product-customizer-loader';
+    loader.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
@@ -18,45 +14,58 @@ document.addEventListener("DOMContentLoaded", async () => {
       justify-content: center;
       align-items: center;
       z-index: 9999;
-    ">
-      <div class="loader" style="
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-      "></div>
-    </div>
-    <style>
+    `;
+    
+    const spinner = document.createElement('div');
+    spinner.style.cssText = `
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-    </style>
-  `;
+    `;
+    
+    loader.appendChild(spinner);
+    document.body.appendChild(loader);
+    document.body.appendChild(style);
+    
+    return loader;
+  }
 
   // Function to show loader
-  function showLoader(container) {
-    // Remove any existing loaders first
-    const existingLoader = container.querySelector(".loader-overlay");
+  function showLoader() {
+    // Remove any existing loader first
+    const existingLoader = document.getElementById('product-customizer-loader');
     if (existingLoader) {
       existingLoader.remove();
     }
-
-    // Create and append new loader
-    const loaderContainer = document.createElement("div");
-    loaderContainer.innerHTML = loaderHTML;
-    container.appendChild(loaderContainer.firstElementChild);
+    
+    return createLoader();
   }
 
   // Function to hide loader
-  function hideLoader(container) {
-    const loader = container.querySelector(".loader-overlay");
+  function hideLoader() {
+    const loader = document.getElementById('product-customizer-loader');
     if (loader) {
       loader.remove();
     }
   }
+
+  const selectedOptions = {
+    imageId: null,
+    shapeId: null,
+    colorId: null,
+    bgColorId: null,
+  };
 
   // Initial HTML structure with wrapper for shape and content
   const initialHTML = `
@@ -92,9 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="product-details">
         <p>Product ID: <span class="product-id"></span></p>
         <p style= "font-weight:bold;"><span class="product-price"></span></p>
-        <div class="customization-options">
-          <h2>Loading customization options...</h2>
-        </div>
         <div class="text-customization" style="margin-top: 20px;">
           <h3 style="margin-bottom:7px; font-family: 'Roboto Condensed', sans-serif;">Enter Custom Text</h3>
           <div style="margin-bottom: 15px;">
@@ -670,8 +676,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Update initial total price
       updateTotalPrice(currentImagePrice, currentShapePrice);
 
+      hideLoader();
+
       async function generateCustomImage(options) {
         try {
+          showLoader();
           const {
             shapeId,
             imageId,
@@ -711,13 +720,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (!result.success) {
             throw new Error(result.error || "Failed to process image");
           }
-          hideLoader(container);
+          hideLoader();
           // Return the S3 URL from the response
           return result.url;
           
         } catch (error) {
           console.error("Error generating custom image:", error);
-          hideLoader(container);
+          hideLoader();
           throw error;
         }
       }
