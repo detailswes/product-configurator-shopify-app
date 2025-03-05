@@ -361,6 +361,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapeContainer = container.querySelector("#shape-container");
     if (shapeUrl) {
       try {
+        showLoader();
         const signedResponse = await fetch(
           `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
         );
@@ -414,8 +415,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateShapeColor(container, currentColor);
           }
         }
+        hideLoader();
       } catch (error) {
         console.error("Error loading SVG:", error);
+        hideLoader();
       }
     }
 
