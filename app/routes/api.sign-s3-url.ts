@@ -14,11 +14,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const objectKey = new URL(s3Url).pathname.slice(1); // Remove the leading slash
     const signedUrl = await generatePresignedUrl(objectKey);
     return json({ signedUrl },{
-        // headers: {
-        //   "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-        //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        // "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        // },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
       },);
   } catch (error) {
     console.error("Error generating pre-signed URL:", error);

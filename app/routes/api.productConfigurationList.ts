@@ -57,12 +57,11 @@ export const loader: LoaderFunction = async ({ request }: { request: Request }) 
         },
       },
       { status: 200,
-      //   headers: {
-      //   "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-      //   "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
-      //   "Access-Control-Allow-Headers": "Content-Type,Authorization"
-      // } 
-    }
+        headers: {
+        "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
+        "Access-Control-Allow-Methods": "GET,POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization"
+      } }
     );
   } catch (error) {
     console.error("Error fetching product configurations:", error);
