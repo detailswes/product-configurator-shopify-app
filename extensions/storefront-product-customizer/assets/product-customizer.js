@@ -1063,7 +1063,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const productDescription = container.getAttribute(
       "data-product-description",
     );
-    if (productId && productPrice && productDescription) {
+    if (productId && productPrice) {
       initializeCustomizer(
         container,
         productId,
