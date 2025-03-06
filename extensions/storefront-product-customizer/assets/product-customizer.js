@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         showLoader();
         const signedResponse = await fetch(
-          `https://product-configurator-shopify-app.onrender.com/api/sign-s3-url?url=${shapeUrl}`,
+          `/apps/my-app/api/sign-s3-url?url=${shapeUrl}`,
         );
 
         if (!signedResponse.ok) {
@@ -605,7 +605,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `https://product-configurator-shopify-app.onrender.com/api/productConfigurationList?product_id=${productId}`,
+        `/apps/my-app/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -676,7 +676,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
           const response = await fetch(
-            "https://product-configurator-shopify-app.onrender.com/api/overlay",
+            "/apps/my-app/api/overlay",
             {
               method: "POST",
               headers: {
