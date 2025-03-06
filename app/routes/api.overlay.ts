@@ -32,11 +32,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204, // No Content
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Or your Shopify store domain
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
+      // headers: {
+      //   "Access-Control-Allow-Origin": "*", // Or your Shopify store domain
+      //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      // },
     });
   }
   return new Response("Method Not Allowed", { status: 405 });
@@ -47,11 +47,11 @@ export const action: ActionFunction = async ({ request }) => {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204, // No content
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Or specify your PDP domain
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
+      // headers: {
+      //   "Access-Control-Allow-Origin": "*", // Or specify your PDP domain
+      //   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      // },
     });
   }
   // Only allow POST requests
@@ -240,13 +240,13 @@ export const action: ActionFunction = async ({ request }) => {
           filename: filename,
           format: format,
         },
-        {
-          headers: {
-            "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
-        },
+        // {
+        //   headers: {
+        //     "Access-Control-Allow-Origin": "*", // Or specify your Shopify app domain
+        //     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        //   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        //   },
+        // },
       );
     } catch (error) {
       console.error("Error uploading to S3:", error);
