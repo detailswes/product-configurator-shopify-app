@@ -27,19 +27,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   </style>
 `;
-  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
+
+function addLoaderToContainer(container) {
+  // First, check if the loader already exists in this container
+  if (!container.querySelector("#page-loader")) {
+    container.insertAdjacentHTML("afterbegin", loaderHTML);
+  }
+}
 
   // Function to show/hide loader
-  function showLoader() {
-    document.getElementById("page-loader").style.display = "flex";
+  function showLoader(container) {
+    // Find the loader within the given container
+    const loader = container.querySelector("#page-loader");
+    if (loader) {
+      loader.style.display = "flex";
+    }
   }
 
-  function hideLoader() {
-    document.getElementById("page-loader").style.display = "none";
+  function hideLoader(container) {
+    // Find the loader within the given container
+    const loader = container.querySelector("#page-loader");
+    if (loader) {
+      loader.style.display = "none";
+    }
   }
-
-  // Show loader when the page starts loading
-  showLoader();
+ 
 
   const selectedOptions = {
     imageId: null,
@@ -361,7 +373,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapeContainer = container.querySelector("#shape-container");
     if (shapeUrl) {
       try {
-        showLoader();
+        addLoaderToContainer(container);
+        showLoader(container);
         const signedResponse = await fetch(
           `/apps/my-app/api/sign-s3-url?url=${shapeUrl}`,
         );
@@ -565,7 +578,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     customerTags,
   ) {
     try {
-      showLoader(); // Show loader when fetching data
+      addLoaderToContainer(container);
+      showLoader(container); // Show loader when fetching data
 
       // Set initial HTML
       container.innerHTML = initialHTML;
@@ -753,7 +767,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (addToCartButton) {
         addToCartButton.addEventListener("click", async () => {
           try {
-            showLoader();
+            addLoaderToContainer(container);
+            showLoader(container);
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
 
