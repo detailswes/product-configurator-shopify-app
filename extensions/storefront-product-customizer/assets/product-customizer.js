@@ -1100,6 +1100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         productId,
         productPrice,
         productDescription,
+        customerTags
       );
     } else {
       console.error("Product ID not found for customizer container");
