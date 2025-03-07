@@ -1058,11 +1058,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const containers = document.querySelectorAll("[data-product-customizer]");
 
   containers.forEach((container) => {
+    console.log("coming");
     const productId = container.getAttribute("data-product-id");
     const productPrice = container.getAttribute("data-product-price");
     const productDescription = container.getAttribute(
       "data-product-description",
     );
+    const customerTags = container.getAttribute("data-customer-tags");
+    console.log("customerTags",customerTags);
+    const customerId = container.getAttribute("data-customer-id");
+    console.log("customerId",customerId);
     if (productId && productPrice) {
       initializeCustomizer(
         container,
