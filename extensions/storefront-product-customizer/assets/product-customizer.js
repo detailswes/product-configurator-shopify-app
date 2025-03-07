@@ -613,8 +613,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const productPriceElement = container.querySelector(".product-price");
         if (productPriceElement) {
           if (discountApplied) {
-            productPriceElement.innerHTML = `Original Price: $${originalPrice.toFixed(2)}<br>
-                                         <strong>Discounted Base Price: $${basePrice.toFixed(2)}</strong> (40% off)<br>
+            productPriceElement.innerHTML = `<strong>Base Price:</strong> <p class='text-linethrough'>  $${originalPrice.toFixed(2)} </p>
+                                         <strong>Discounted Base Price: $${basePrice.toFixed(2)}</strong><br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
                                          Shape Price: $${shapePrice.toFixed(2)}<br>
                                          <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
@@ -1100,7 +1100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         productId,
         productPrice,
         productDescription,
-        customerTags
+        customerTags,
       );
     } else {
       console.error("Product ID not found for customizer container");

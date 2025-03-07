@@ -120,6 +120,10 @@
   cursor: pointer;
 }
 
+.text-linethrough{
+  text-decoration: line-through;
+}
+
 @media (max-width: 768px) {
   .product-customizer-container {
     display: block;
