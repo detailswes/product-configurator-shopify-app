@@ -584,16 +584,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         .replace(/[^\d.]/g, "")
         // If there are multiple dots, keep only the last one
         .replace(/\.(?=.*\.)/g, "");
+        if (customerTags && (customerTags.includes('B2B') || customerTags.includes('VIP') || customerTags === 'B2BVIP')) {
+          basePrice = basePrice * 0.6; // Apply 40% discount (60% of original price)
+          discountApplied = true;
+        }
       const basePrice = parseFloat(cleanPrice);
       // Function to update total price display
+      // function updateTotalPrice(imagePrice, shapePrice) {
+      //   const totalPrice = basePrice + imagePrice + shapePrice;
+      //   const productPriceElement = container.querySelector(".product-price");
+      //   if (productPriceElement) {
+      //     productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
+      //                                    Image Price: $${imagePrice.toFixed(2)}<br>
+      //                                    Shape Price: $${shapePrice.toFixed(2)}<br>
+      //                                    <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
+      //   }
+      // }
       function updateTotalPrice(imagePrice, shapePrice) {
         const totalPrice = basePrice + imagePrice + shapePrice;
         const productPriceElement = container.querySelector(".product-price");
         if (productPriceElement) {
-          productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
+          if (discountApplied) {
+            productPriceElement.innerHTML = `Original Price: $${originalPrice.toFixed(2)}<br>
+                                         <strong>Discounted Base Price: $${basePrice.toFixed(2)}</strong> (40% off)<br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
                                          Shape Price: $${shapePrice.toFixed(2)}<br>
                                          <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
+          } else {
+            productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
+                                         Image Price: $${imagePrice.toFixed(2)}<br>
+                                         Shape Price: $${shapePrice.toFixed(2)}<br>
+                                         <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
+          }
         }
       }
 
