@@ -562,6 +562,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     productId,
     productPrice,
     productDescription,
+    customerTags
   ) {
     try {
       showLoader(); // Show loader when fetching data
@@ -1066,8 +1067,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     const customerTags = container.getAttribute("data-customer-tags");
     console.log("customerTags",customerTags);
-    const customerId = container.getAttribute("data-customer-id");
-    console.log("customerId",customerId);
     if (productId && productPrice) {
       initializeCustomizer(
         container,
