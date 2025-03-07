@@ -584,11 +584,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         .replace(/[^\d.]/g, "")
         // If there are multiple dots, keep only the last one
         .replace(/\.(?=.*\.)/g, "");
+        let basePrice = parseFloat(cleanPrice);
+        let originalPrice = basePrice;
+        let discountApplied = false;
         if (customerTags && (customerTags.includes('B2B') || customerTags.includes('VIP') || customerTags === 'B2BVIP')) {
           basePrice = basePrice * 0.6; // Apply 40% discount (60% of original price)
           discountApplied = true;
         }
-      const basePrice = parseFloat(cleanPrice);
       // Function to update total price display
       // function updateTotalPrice(imagePrice, shapePrice) {
       //   const totalPrice = basePrice + imagePrice + shapePrice;
