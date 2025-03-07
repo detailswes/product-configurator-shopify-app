@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     productId,
     productPrice,
     productDescription,
-    customerTags
+    customerTags,
   ) {
     try {
       showLoader(); // Show loader when fetching data
@@ -584,13 +584,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         .replace(/[^\d.]/g, "")
         // If there are multiple dots, keep only the last one
         .replace(/\.(?=.*\.)/g, "");
-        let basePrice = parseFloat(cleanPrice);
-        let originalPrice = basePrice;
-        let discountApplied = false;
-        if (customerTags && (customerTags.includes('B2B') || customerTags.includes('VIP') || customerTags === 'B2BVIP')) {
-          basePrice = basePrice * 0.6; // Apply 40% discount (60% of original price)
-          discountApplied = true;
-        }
+      let basePrice = parseFloat(cleanPrice);
+      let originalPrice = basePrice;
+      let discountApplied = false;
+      console.log(" incoming customerTags ", customerTags);
+      if (
+        customerTags &&
+        (customerTags.includes("B2B") ||
+          customerTags.includes("VIP") ||
+          customerTags === "B2BVIP")
+      ) {
+        basePrice = basePrice * 0.6; // Apply 40% discount (60% of original price)
+        discountApplied = true;
+      }
       // Function to update total price display
       // function updateTotalPrice(imagePrice, shapePrice) {
       //   const totalPrice = basePrice + imagePrice + shapePrice;
@@ -700,23 +706,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch(
-            "/apps/my-app/api/overlay",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                shapeId,
-                imageId,
-                colorId,
-                bgColorId,
-                text,
-                format,
-              }),
+          const response = await fetch("/apps/my-app/api/overlay", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          );
+            body: JSON.stringify({
+              shapeId,
+              imageId,
+              colorId,
+              bgColorId,
+              text,
+              format,
+            }),
+          });
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -750,7 +753,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (addToCartButton) {
         addToCartButton.addEventListener("click", async () => {
           try {
-            showLoader(); 
+            showLoader();
             addToCartButton.disabled = true;
             addToCartButton.textContent = "Generating image...";
 
@@ -1090,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "data-product-description",
     );
     const customerTags = container.getAttribute("data-customer-tags");
-    console.log("customerTags",customerTags);
+    console.log("customerTags", customerTags);
     if (productId && productPrice) {
       initializeCustomizer(
         container,
