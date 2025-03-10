@@ -588,6 +588,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       let discountApplied = false;
       function updateTotalPrice(imagePrice, shapePrice) {
         let totalPrice = basePrice + imagePrice + shapePrice;
+        let originalTotalPrice = totalPrice;
         if (
           customerTags &&
           (customerTags.includes("B2B") ||
@@ -603,7 +604,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
                                          Shape Price: $${shapePrice.toFixed(2)}<br>
-                                         <strong>Total: <span class='text-linethrough'>$${totalPrice.toFixed(2)}</span> $${basePrice.toFixed(2)}</strong>`;
+                                         <strong>Total: <span class='text-linethrough'>$${originalTotalPrice.toFixed(2)}</span> $${totalPrice.toFixed(2)}</strong>`;
           } else {
             productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
