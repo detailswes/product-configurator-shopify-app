@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <input type="text" 
               id="overlay-text" 
               value="BLUE RIDGE" 
-              maxlength="17" 
+              maxlength="10" 
               style="width: 100%; padding: 8px;text-transform: uppercase;max-width: 300px; border-radius: 8px;border: 1px solid #000;height: 40px;">
           </div>
         </div>
@@ -109,10 +109,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (textOverlay && brailleOverlay && textInput) {
       // Set maxlength attribute on input
-      textInput.setAttribute("maxlength", "17");
+      textInput.setAttribute("maxlength", "10");
 
       textInput.addEventListener("input", (e) => {
-        // Convert to uppercase and trim to 17 characters
+        // Convert to uppercase and trim to 10 characters
         let value = e.target.value.toUpperCase();
 
         // Update input value
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const pastedText = (e.clipboardData || window.clipboardData).getData(
           "text",
         );
-        const uppercaseText = pastedText.toUpperCase().slice(0, 17);
+        const uppercaseText = pastedText.toUpperCase().slice(0, 10);
 
         const currentValue = textInput.value;
         const cursorPosition = textInput.selectionStart;
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           uppercaseText +
           currentValue.slice(cursorPosition);
 
-        const finalValue = newValue.slice(0, 17);
+        const finalValue = newValue.slice(0, 10);
 
         // Update input value
         textInput.value = finalValue;
@@ -585,39 +585,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         // If there are multiple dots, keep only the last one
         .replace(/\.(?=.*\.)/g, "");
       let basePrice = parseFloat(cleanPrice);
-      let originalPrice = basePrice;
       let discountApplied = false;
-      console.log(" incoming customerTags ", customerTags);
-      if (
-        customerTags &&
-        (customerTags.includes("B2B") ||
-          customerTags.includes("VIP") ||
-          customerTags === "B2BVIP")
-      ) {
-        basePrice = basePrice * 0.6; // Apply 40% discount (60% of original price)
-        discountApplied = true;
-      }
-      // Function to update total price display
-      // function updateTotalPrice(imagePrice, shapePrice) {
-      //   const totalPrice = basePrice + imagePrice + shapePrice;
-      //   const productPriceElement = container.querySelector(".product-price");
-      //   if (productPriceElement) {
-      //     productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
-      //                                    Image Price: $${imagePrice.toFixed(2)}<br>
-      //                                    Shape Price: $${shapePrice.toFixed(2)}<br>
-      //                                    <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
-      //   }
-      // }
       function updateTotalPrice(imagePrice, shapePrice) {
-        const totalPrice = basePrice + imagePrice + shapePrice;
+        let totalPrice = basePrice + imagePrice + shapePrice;
+        if (
+          customerTags &&
+          (customerTags.includes("B2B") ||
+            customerTags.includes("VIP") ||
+            customerTags === "B2BVIP")
+        ) {
+          totalPrice = totalPrice * 0.6; // Apply 40% discount (60% of original price)
+          discountApplied = true;
+        }
         const productPriceElement = container.querySelector(".product-price");
         if (productPriceElement) {
           if (discountApplied) {
-            productPriceElement.innerHTML = `<strong>Base Price:</strong> <span class='text-linethrough'>  $${originalPrice.toFixed(2)} </span><strong> $${basePrice.toFixed(2)}</strong>
-                                         <br>
+            productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
                                          Shape Price: $${shapePrice.toFixed(2)}<br>
-                                         <strong>Total: $${totalPrice.toFixed(2)}</strong>`;
+                                         <strong>Total: <span class='text-linethrough'>$${totalPrice.toFixed(2)}</span> $${basePrice.toFixed(2)}</strong>`;
           } else {
             productPriceElement.innerHTML = `Base Price: $${basePrice.toFixed(2)}<br>
                                          Image Price: $${imagePrice.toFixed(2)}<br>
