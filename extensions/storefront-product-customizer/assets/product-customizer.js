@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div id="text-overlay" 
                style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2;">
             <h1 id="overlay-text-display" 
-                style="font-size: 30px; color: #000000; margin-bottom: 10px; font-family:Noto Serif Hentaigana">
+                style="font-size: 30px; color: #000000; margin-bottom: 10px; font-family: Tahoma, Verdana, sans-serif;">
               BLUE RIDGE
             </h1>
             <h2 id="braille-text-display"
-                style="font-size: 24px; color: #000000; font-family:Noto Serif Hentaigana">
+                style="font-size: 24px; color: #000000; font-family: Tahoma, Verdana, sans-serif;">
               ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑
             </h2>
           </div>
@@ -80,7 +80,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     <div class="product-customizer-content">
       <h2 style="margin-top: 0" class="testing_class">Product Customizer</h2>
       <div class="product-details">
-        <p>Product ID: <span class="product-id"></span></p>
         <p style= "font-weight:bold;"><span class="product-price"></span></p>
         <div class="customization-options">
           <h2>Loading customization options...</h2>
