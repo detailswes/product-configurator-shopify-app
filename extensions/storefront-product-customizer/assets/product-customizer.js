@@ -100,6 +100,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   </div>
 `;
 
+  // New function to update maxlength based on shape width
+  function updateMaxLength(container, width) {
+    const textInput = container.querySelector("#overlay-text");
+    if (textInput) {
+      // Set maxlength based on width
+      let maxLength = 10; // Default for 6" width
+
+      if (width >= 8) {
+        maxLength = 14;
+      } else if (width >= 6) {
+        maxLength = 10;
+      }
+
+      // Update maxlength attribute
+      textInput.setAttribute("maxlength", maxLength);
+
+      // Also update the current text if it's too long for the new maxlength
+      if (textInput.value.length > maxLength) {
+        textInput.value = textInput.value.substring(0, maxLength);
+
+        // Also update displayed text
+        const textOverlay = container.querySelector("#overlay-text-display");
+        const brailleOverlay = container.querySelector("#braille-text-display");
+
+        if (textOverlay) {
+          textOverlay.textContent = textInput.value;
+        }
+
+        if (brailleOverlay) {
+          // Convert to Braille
+          const brailleValue = textInput.value
+            .split("")
+            .map(
+              (char) =>
+                "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿"[
+                  " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=".indexOf(
+                    char,
+                  )
+                ],
+            )
+            .join("");
+          brailleOverlay.textContent = brailleValue;
+        }
+      }
+    }
+  }
+
   // Update text overlay
   function updateTextOverlay(container) {
     const textOverlay = container.querySelector("#overlay-text-display");
@@ -113,6 +160,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       textInput.addEventListener("input", (e) => {
         // Convert to uppercase and trim to 10 characters
         let value = e.target.value.toUpperCase();
+
+        // Get current maxlength
+        const maxLength = parseInt(textInput.getAttribute("maxlength") || 10);
+
+        // Trim to maxlength characters
+        if (value.length > maxLength) {
+          value = value.slice(0, maxLength);
+        }
 
         // Update input value
         e.target.value = value;
@@ -143,7 +198,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const pastedText = (e.clipboardData || window.clipboardData).getData(
           "text",
         );
-        const uppercaseText = pastedText.toUpperCase().slice(0, 10);
+
+        const maxLength = parseInt(textInput.getAttribute("maxlength") || 10);
+        const uppercaseText = pastedText.toUpperCase().slice(0, maxLength);
 
         const currentValue = textInput.value;
         const cursorPosition = textInput.selectionStart;
@@ -435,6 +492,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (checkmark) {
         checkmark.style.display = "flex";
       }
+    }
+    const shapeOption = selectedElement.closest(".shape-option");
+    if (shapeOption) {
+      // Extract width from shape data
+      const shapeWidth = parseFloat(
+        shapeOption
+          .querySelector("p")
+          .textContent.split("*")[0]
+          .trim()
+          .replace('"', ""),
+      );
+
+      // Update maxlength based on width
+      updateMaxLength(container, shapeWidth);
     }
   }
 
@@ -1022,6 +1093,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         shape.addEventListener("click", () => {
           const shapeUrl = shape.dataset.url;
           updateShapePreview(container, shapeUrl, shape);
+          // Get the width from the shape option
+          const shapeOption = shape.closest(".shape-option");
+          if (shapeOption) {
+            const shapeText = shapeOption.querySelector("p").textContent;
+            const shapeWidth = parseFloat(
+              shapeText.split("*")[0].trim().replace('"', ""),
+            );
+
+            // Update maxlength based on shape width
+            updateMaxLength(container, shapeWidth);
+          }
           // Update shape price from database value
           currentShapePrice = parseFloat(shapesPrice[index]) || 0;
           updateTotalPrice(currentImagePrice, currentShapePrice);
@@ -1029,6 +1111,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           selectedOptions.shapeId = shapeId;
         }),
       );
+
+      function initializeMaxLength(container, shapesSizes) {
+        if (shapesSizes && shapesSizes.length > 0) {
+          const defaultShape = shapesSizes[0];
+          const width = parseFloat(defaultShape.width);
+          updateMaxLength(container, width);
+        }
+      }
+      
+      // Call this function after loading shape data
+      // Add this line inside the initializeCustomizer function after loading data
+      initializeMaxLength(container, allShapesSizes);
 
       const colorOptions = container.querySelectorAll(".color-swatch");
       colorOptions.forEach((swatch) =>
