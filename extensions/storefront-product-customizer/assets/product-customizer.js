@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div id="text-overlay" 
                style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2;">
             <h1 id="overlay-text-display" 
-                style="font-size: 30px; color: #000000; margin-bottom: 10px; font-family: Tahoma, sans-serif;">
+                style="font-size: 60px; color: #000000; margin-bottom: 10px; font-family: Tahoma, sans-serif;">
               BLUE RIDGE
             </h1>
             <h2 id="braille-text-display"
-                style="font-size: 24px; color: #000000; font-family: Tahoma, sans-serif;">
+                style="font-size: 54px; color: #000000; font-family: Tahoma, sans-serif;">
               ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑
             </h2>
           </div>
