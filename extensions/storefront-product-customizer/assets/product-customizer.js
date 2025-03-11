@@ -25,17 +25,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+      .product-customizer-container {
+      position: relative;
+      min-height: 200px;
+    }
   </style>
 `;
-  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
-
-  // Function to show/hide loader
-  function showLoader() {
-    document.getElementById("page-loader").style.display = "flex";
+  function showLoader(container) {
+    const loader = container.querySelector("#customizer-loader");
+    if (loader) {
+      loader.style.display = "flex";
+    }
   }
 
-  function hideLoader() {
-    document.getElementById("page-loader").style.display = "none";
+  function hideLoader(container) {
+    const loader = container.querySelector("#customizer-loader");
+    if (loader) {
+      loader.style.display = "none";
+    }
   }
 
   // Show loader when the page starts loading
@@ -1119,7 +1126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateMaxLength(container, width);
         }
       }
-      
+
       // Call this function after loading shape data
       // Add this line inside the initializeCustomizer function after loading data
       initializeMaxLength(container, allShapesSizes);
