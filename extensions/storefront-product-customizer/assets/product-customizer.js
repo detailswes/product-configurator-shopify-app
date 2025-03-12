@@ -40,20 +40,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   </style>
 `;
-  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
-
-  // Function to show/hide loader
-  function showLoader() {
-    document.getElementById("page-loader").style.display = "flex";
-  }
-
-  function hideLoader() {
-    document.getElementById("page-loader").style.display = "none";
-  }
-
-  // Show loader when the page starts loading
-  showLoader();
-
   const selectedOptions = {
     imageId: null,
     shapeId: null,
