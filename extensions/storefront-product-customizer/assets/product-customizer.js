@@ -1,82 +1,45 @@
 document.addEventListener("DOMContentLoaded", async () => {
-//   const loaderHTML = `
-//   <div id="page-loader" style="
-//     position: fixed;
-//     top: 0;
-//     left: 0;
-//     width: 100%;
-//     height: 100%;
-//     background: rgba(255, 255, 255, 0.8);
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     z-index: 9999;">
-//     <div class="loader" style="
-//       width: 50px;
-//       height: 50px;
-//       border: 5px solid #ccc;
-//       border-top-color: #333;
-//       border-radius: 50%;
-//       animation: spin 1s linear infinite;">
-//     </div>
-//   </div>
-//   <style>
-//     @keyframes spin {
-//       0% { transform: rotate(0deg); }
-//       100% { transform: rotate(360deg); }
-//     }
-//   </style>
-// `;
-//   document.body.insertAdjacentHTML("afterbegin", loaderHTML);
+  const loaderHTML = `
+  <div id="page-loader" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;">
+    <div class="loader" style="
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ccc;
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;">
+    </div>
+  </div>
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+`;
+  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
 
-//   // Function to show/hide loader
-//   function showLoader() {
-//     document.getElementById("page-loader").style.display = "flex";
-//   }
+  // Function to show/hide loader
+  function showLoader() {
+    document.getElementById("page-loader").style.display = "flex";
+  }
 
-//   function hideLoader() {
-//     document.getElementById("page-loader").style.display = "none";
-//   }
+  function hideLoader() {
+    document.getElementById("page-loader").style.display = "none";
+  }
 
   // Show loader when the page starts loading
-  // showLoader();
-
-
-  document.head.insertAdjacentHTML(
-    "beforeend",
-    `
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  `,
-  );
-
-  // Define the loader HTML without the style tag
-  const loaderHTML = `
-    <div class="loader-container" style="
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;">
-      <div class="loader" style="
-        width: 50px;
-        height: 50px;
-        border: 5px solid #ccc;
-        border-top-color: #333;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;">
-      </div>
-    </div>
-  `;
+  showLoader();
 
   const selectedOptions = {
     imageId: null,
@@ -672,23 +635,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     customerTags,
   ) {
     try {
+      showLoader(); // Show loader when fetching data
 
       // Set initial HTML
       container.innerHTML = initialHTML;
-      const shapeContainer = container.querySelector("#shape-container");
-      shapeContainer.insertAdjacentHTML("beforeend", loaderHTML);
-      const loader = shapeContainer.querySelector(".loader-container");
-
-      // Define local show/hide functions for this customizer's loader
-      function showLoader() {
-        loader.style.display = "flex";
-      }
-
-      function hideLoader() {
-        loader.style.display = "none";
-      }
-
-      showLoader();
       setupQuantityValidation();
 
       // Initialize text overlay controls
