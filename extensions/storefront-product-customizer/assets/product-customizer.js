@@ -28,17 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   </style>
 `;
   document.body.insertAdjacentHTML("afterbegin", loaderHTML);
-  //for brasil fonts
-  document.addEventListener("DOMContentLoaded", () => {
-    // Create a link element for the font
-    const fontLink = document.createElement("link");
-    fontLink.rel = "stylesheet";
-    fontLink.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap";
-  
-    // Append the font link to the <head> section
-    document.head.appendChild(fontLink);
-  });
-  
+
   // Function to show/hide loader
   function showLoader() {
     document.getElementById("page-loader").style.display = "flex";
@@ -76,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               BLUE RIDGE
             </h1>
             <h2 id="braille-text-display"
-                style="font-size: 24px; color: #000000; font-family: Noto Sans Symbols 2, sans-serif;">
+                style="font-size: 24px; color: #000000; font-family: Tahoma, sans-serif;">
               ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑
             </h2>
           </div>
