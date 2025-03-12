@@ -1,20 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
-
-  document.head.insertAdjacentHTML(
-    "beforeend",
-    `
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  `,
-  );
-
   const loaderHTML = `
-  <div class="loader-container" style="
-    position: absolute;
+  <div id="page-loader" style="
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -40,6 +27,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   </style>
 `;
+  document.body.insertAdjacentHTML("afterbegin", loaderHTML);
+
+  // Function to show/hide loader
+  function showLoader() {
+    document.getElementById("page-loader").style.display = "flex";
+  }
+
+  function hideLoader() {
+    document.getElementById("page-loader").style.display = "none";
+  }
+
+  // Show loader when the page starts loading
+  showLoader();
+
   const selectedOptions = {
     imageId: null,
     shapeId: null,
@@ -52,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   <div class="product-customizer-container">
     <div class="product-customizer-image">
       <!-- Base shape container with background color support -->
-      <div id="shape-container" style="position: relative;">
+      <div id="shape-container">
         
         <!-- Content container -->
         <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -634,25 +635,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     customerTags,
   ) {
     try {
+      showLoader(); // Show loader when fetching data
 
       // Set initial HTML
       container.innerHTML = initialHTML;
-      // Insert loader inside shape-container
-      const shapeContainer = container.querySelector("#shape-container");
-      shapeContainer.insertAdjacentHTML("beforeend", loaderHTML);
-      const loader = shapeContainer.querySelector(".loader-container");
-
-      // Define local show/hide functions for this customizer's loader
-      function showLoader() {
-        loader.style.display = "flex";
-      }
-
-      function hideLoader() {
-        loader.style.display = "none";
-      }
-
-      showLoader(); // Show loader when fetching data
-
       setupQuantityValidation();
 
       // Initialize text overlay controls
@@ -1180,12 +1166,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const containers = document.querySelectorAll("[data-product-customizer]");
 
   containers.forEach((container) => {
+    console.log("coming");
     const productId = container.getAttribute("data-product-id");
     const productPrice = container.getAttribute("data-product-price");
     const productDescription = container.getAttribute(
       "data-product-description",
     );
     const customerTags = container.getAttribute("data-customer-tags");
+    console.log("customerTags", customerTags);
     if (productId && productPrice) {
       initializeCustomizer(
         container,
