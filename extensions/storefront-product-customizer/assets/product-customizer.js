@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         showLoader();
         const signedResponse = await fetch(
-          `http://localhost:40215/api/sign-s3-url?url=${shapeUrl}`,
+          `/apps/my-app/api/sign-s3-url?url=${shapeUrl}`,
         );
 
         if (!signedResponse.ok) {
@@ -693,7 +693,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `http://localhost:40215/api/productConfigurationList?product_id=${productId}`,
+        `/apps/my-app/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -763,7 +763,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch("http://localhost:40215/api/overlay", {
+          const response = await fetch("/apps/my-app/api/overlay", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
