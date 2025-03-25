@@ -1,6 +1,6 @@
 export const FETCH_PRODUCTS = `
 query GetProducts {
-  products(first: 250) {
+  products(first: 250, sortKey: CREATED_AT, reverse: true) {
     edges {
       node {
         id
