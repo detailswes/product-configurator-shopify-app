@@ -344,7 +344,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class='entry-quantity-btns'>
         <div class="quantity-container">
         <button class="quantity-btn" onclick="decrement()">-</button>
-        <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+        <input type="number" id="quantity" class="quantity-input quantity-value" value="1" min="1">
         <button class="quantity-btn" onclick="increment()">+</button>
         </div>
         <button class='add-cart-btn' id='add-to-cart-btn'>Add To Cart</button>

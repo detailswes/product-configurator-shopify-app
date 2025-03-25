@@ -124,6 +124,10 @@
   text-decoration: line-through;
 }
 
+.quantity-value {
+  margin: 0 0 0 !important;
+}
+
 @media (max-width: 768px) {
   .product-customizer-container {
     display: block;
