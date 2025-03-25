@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <!-- Content container -->
         <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
           <img id="preview-image"
-               alt="Selected image">
+               alt="Selected image"
+               
+               >
           <div id="text-overlay" 
                style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2;">
             <h1 id="overlay-text-display" 
@@ -66,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               BLUE RIDGE
             </h1>
             <h2 id="braille-text-display"
-                style="font-size: 24px; color: #000000; font-family: Tahoma, sans-serif;">
+                style="font-size: 30px; color: #000000; font-family: Tahoma, sans-serif;">
               ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑
             </h2>
           </div>
@@ -269,20 +271,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shapesOptionsHTML = shapesSizes
       .map(
         (shape, index) => `
-        <div class="shape-option" data-id=${shape.id} style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
-          <img src="${shape.image}" 
-               data-url="${shape.image}" 
-               data-price="${shape.additional_price || 0}"
-               alt="Shape option" 
-               class="shapes-sizes" 
-               style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
-          <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
-          <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${
-            index === 0 ? "flex" : "none"
-          }; align-items: center; justify-content: center;">
-            <span style="color: white; font-size: 14px;">✓</span>
-          </div>
-        </div>`,
+      <div class="shape-option" data-id=${shape.id} style="gap: 40px; margin-right: 4px; margin-bottom: 10px; position: relative;">
+        <img src="${shape.image}" 
+             data-url="${shape.image}" 
+             data-price="${shape.additional_price || 0}"
+             alt="Shape option" 
+             class="shapes-sizes" 
+             style="width: 100px; height: 75px; cursor: pointer; object-fit: contain; border:1px solid black; border-radius: 0px;">
+        <p style="text-align:center;margin:0px">${shape.width}" * ${shape.height}"</p>
+        <div class="checkmark ${index === 0 ? "active" : ""}" style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; display: ${index === 0 ? "flex" : "none"}; align-items: center; justify-content: center;">
+          <span style="color: white; font-size: 14px;">✓</span>
+        </div>
+      </div>`,
       )
       .join("");
 
@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       try {
         showLoader();
         const signedResponse = await fetch(
-          `/apps/my-app/api/sign-s3-url?url=${shapeUrl}`,
+          `http://localhost:40215/api/sign-s3-url?url=${shapeUrl}`,
         );
 
         if (!signedResponse.ok) {
@@ -479,20 +479,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Update checkmarks for shapes
-    container
-      .querySelectorAll(".shape-option .checkmark")
-      .forEach((checkmark) => {
-        checkmark.style.display = "none";
-      });
+    // container
+    //   .querySelectorAll(".shape-options .checkmark")
+    //   .forEach((checkmark) => {
+    //     checkmark.style.display = "none";
+    //   });
 
-    if (selectedElement) {
-      const checkmark = selectedElement
-        .closest(".shape-option")
-        .querySelector(".checkmark");
-      if (checkmark) {
-        checkmark.style.display = "flex";
-      }
-    }
+    // if (selectedElement) {
+    //   const checkmark = selectedElement
+    //     .closest(".shape-option")
+    //     .querySelector(".checkmark");
+    //   if (checkmark) {
+    //     checkmark.style.display = "flex";
+    //   }
+    // }
     const shapeOption = selectedElement.closest(".shape-option");
     if (shapeOption) {
       // Extract width from shape data
@@ -693,7 +693,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Fetch product configurations
       const response = await fetch(
-        `/apps/my-app/api/productConfigurationList?product_id=${productId}`,
+        `http://localhost:40215/api/productConfigurationList?product_id=${productId}`,
       );
 
       if (!response.ok) {
@@ -763,7 +763,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           } = options;
 
           // Make a request to the updated overlay API that now handles S3 upload automatically
-          const response = await fetch("/apps/my-app/api/overlay", {
+          const response = await fetch("http://localhost:40215/api/overlay", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -842,6 +842,28 @@ document.addEventListener("DOMContentLoaded", async () => {
               (color) => color.id === bgColorId,
             );
 
+            let fontSize = `5/8"`; // Default font size
+            let imageSize = `4.16"`; // Default image size
+
+            if (selectedShapeObj) {
+              const width = parseFloat(selectedShapeObj.width);
+              const height = parseFloat(selectedShapeObj.height);
+
+              // Set font size based on shape dimensions
+              if (width <= 6 && height <= 6) {
+                fontSize = "40px";
+              } else if (width >= 8 && height >= 8) {
+                fontSize = "60px";
+              } else {
+                fontSize = "60px"; // For medium sizes like 8"*6"
+              }
+
+              // Set image size based on shape dimensions
+              // Calculate the larger dimension to determine base image size
+              const largerDimension = Math.max(width, height);
+              imageSize = `${largerDimension * 50}px`; // 50px per inch as an example ratio
+            }
+
             // Generate the custom image and get S3 URL
             const customImageUrl = await generateCustomImage({
               shapeId: shapeId,
@@ -849,6 +871,8 @@ document.addEventListener("DOMContentLoaded", async () => {
               colorId: colorId,
               bgColorId: bgColorId,
               text: customText,
+              fontSize: fontSize.replace("px", ""), // Pass font size without "px"
+              imageSize: imageSize.replace("px", ""), // Pass image size without "px"
               format: "png",
             });
 
@@ -860,6 +884,13 @@ document.addEventListener("DOMContentLoaded", async () => {
               alert("Could not add to cart: Product information missing");
               return;
             }
+
+            const fontSizeInInches = (
+              parseFloat(fontSize.replace("px", "")) / 96
+            ).toFixed(2);
+            const imageSizeInInches = (
+              parseFloat(imageSize.replace("px", "")) / 96
+            ).toFixed(2);
 
             // Prepare cart data with names instead of URLs/hex values
             const formData = {
@@ -874,6 +905,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                       selectedImageObj?.image_name || "Default Image",
                     "Selected Shape":
                       selectedShapeObj?.shape_name || "Default Shape",
+                    "Shape Size": `${selectedShapeObj?.width}" * ${selectedShapeObj?.height}"`,
+                    "Font Size": `${fontSizeInInches}"`,
+                    "Image Size": `${imageSizeInInches}"`,
                     "Text Color":
                       selectedColorObj?.color_name || "Default Color",
                     "Background Color":
@@ -1109,6 +1143,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateTotalPrice(currentImagePrice, currentShapePrice);
           const shapeId = shape.closest(".shape-option").dataset.id;
           selectedOptions.shapeId = shapeId;
+
+          // Update checkmarks for shapes
+          container
+            .querySelectorAll(".shape-options .checkmark")
+            .forEach((checkmark) => {
+              checkmark.style.display = "none";
+            });
+
+          const checkmark = shape
+            .closest(".shape-option")
+            .querySelector(".checkmark");
+          if (checkmark) {
+            checkmark.style.display = "flex";
+          }
         }),
       );
 
@@ -1119,7 +1167,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateMaxLength(container, width);
         }
       }
-      
+
       // Call this function after loading shape data
       // Add this line inside the initializeCustomizer function after loading data
       initializeMaxLength(container, allShapesSizes);
@@ -1166,14 +1214,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const containers = document.querySelectorAll("[data-product-customizer]");
 
   containers.forEach((container) => {
-    console.log("coming");
     const productId = container.getAttribute("data-product-id");
     const productPrice = container.getAttribute("data-product-price");
     const productDescription = container.getAttribute(
       "data-product-description",
     );
     const customerTags = container.getAttribute("data-customer-tags");
-    console.log("customerTags", customerTags);
     if (productId && productPrice) {
       initializeCustomizer(
         container,

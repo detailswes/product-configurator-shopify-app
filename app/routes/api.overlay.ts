@@ -4,6 +4,8 @@ import { json } from "@remix-run/node";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import prisma from "app/db.server";
+import fs from "fs/promises";
+import path from "path";
 
 // Configure AWS S3 client
 const s3Client = new S3Client({
@@ -43,7 +45,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204, // No content
@@ -57,7 +58,7 @@ export const action: ActionFunction = async ({ request }) => {
   // Only allow POST requests
   if (request.method !== "POST") {
     return new Response("Method not allowed", {
-      status: 405
+      status: 405,
     });
   }
 
@@ -120,10 +121,11 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     // Fetch and process SVG template
+    // const svgPath = path.resolve("public", "Icon-2.svg");
+    // let svgTemplate = await fs.readFile(svgPath, "utf-8");
     const svgPath = imageData.image_url;
     const svgResponse = await fetch(svgPath);
     let svgTemplate = await svgResponse.text();
-
     // Fetch and process base image
     const baseImageResponse = await fetch(shapesData.image);
     if (!baseImageResponse.ok) {
@@ -144,9 +146,13 @@ export const action: ActionFunction = async ({ request }) => {
       );
     }
 
+    const INCH_TO_PX = 96;
+   const shapeWidthPx = Math.round(Number(shapesData?.width) * INCH_TO_PX);
+const shapeHeightPx = Math.round(Number(shapesData?.height) * INCH_TO_PX);
+
     // Convert base SVG to PNG buffer
     const baseImageBuffer = await sharp(Buffer.from(baseSvg))
-      .resize(500, 500)
+      .resize(shapeWidthPx,shapeHeightPx)
       .toFormat("png")
       .toBuffer();
 
@@ -158,7 +164,7 @@ export const action: ActionFunction = async ({ request }) => {
 
     // Create overlay buffer
     const overlayBuffer = await sharp(Buffer.from(svgTemplate))
-      .resize(200, 200)
+      .resize(400, 400)
       .toFormat("png")
       .toBuffer();
 
@@ -174,6 +180,8 @@ export const action: ActionFunction = async ({ request }) => {
     const left = Math.floor(
       (baseImageMetadata.width - overlayMetadata.width) / 2,
     );
+    const overlayTop = 90;
+    const overlayBottom = overlayTop + overlayMetadata.height;
     const top = Math.floor(
       (baseImageMetadata.height - overlayMetadata.height) / 2,
     );
@@ -191,11 +199,16 @@ export const action: ActionFunction = async ({ request }) => {
       )
       .join("");
 
+      const textTopOffset = overlayBottom + 113;
+
     // Create text SVG
     const svgText = `
-      <svg width="${baseImageMetadata.width}" height="${baseImageMetadata.height}">
-        <text x="50%" y="70%" font-size="30" fill="${colorData.hex_value}" text-anchor="middle">${text}</text>
-        <text x="50%" y="80%" font-size="30" fill="${colorData.hex_value}" text-anchor="middle">${brailleText}</text>
+      <svg width="${shapeWidthPx}" height="${shapeHeightPx}">
+    <text x="50%" y="${textTopOffset}" font-size="60" fill="${colorData.hex_value}"
+      text-anchor="middle" font-family="Tahoma, sans-serif">
+      ${text}
+    </text>
+        <text x="50%" y="${textTopOffset + 80}" font-size="60" fill="${colorData.hex_value}" text-anchor="middle">${brailleText}</text>
       </svg>
     `;
 
@@ -207,7 +220,7 @@ export const action: ActionFunction = async ({ request }) => {
     // Compose final image
     const finalImageBuffer = await sharp(baseImageBuffer)
       .composite([
-        { input: overlayBuffer, top: 90, left },
+        { input: overlayBuffer, top: overlayTop, left },
         { input: textBuffer, top: 0, left: 0 },
       ])
       .toFormat(format)
