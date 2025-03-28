@@ -59,7 +59,7 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   width: 15%;
-  height:33px;
+  height:35px;
   overflow: hidden;
 }
 .quantity-btn {
@@ -72,8 +72,7 @@
   text-align: center;
 }
 .quantity-input {
-  width: 50px;
-  min-width: 50px;
+  width: 40px;
   text-align: center;
   border: none;
   font-size: 16px;
@@ -128,6 +127,8 @@
 
 .quantity-value {
   margin: 0 0 0 !important;
+  width: 50px;
+  min-width: 50px;
 }
 
 @media (max-width: 768px) {
