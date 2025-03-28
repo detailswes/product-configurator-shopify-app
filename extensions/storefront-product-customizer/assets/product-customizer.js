@@ -385,6 +385,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (imageUrl) {
       previewImage.src = imageUrl;
       previewImage.classList.remove("hidden");
+      previewImage.stroke = "none";
 
       // Reapply current color if exists
       const currentColorSwatch = container.querySelector(
