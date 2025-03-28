@@ -58,7 +58,8 @@
   align-items: center;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 103px;
+  width: 15%;
+  height:33px;
   overflow: hidden;
 }
 .quantity-btn {
@@ -71,7 +72,8 @@
   text-align: center;
 }
 .quantity-input {
-  width: 40px;
+  width: 50px;
+  min-width: 50px;
   text-align: center;
   border: none;
   font-size: 16px;
