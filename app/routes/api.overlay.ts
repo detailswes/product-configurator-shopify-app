@@ -121,11 +121,11 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     // Fetch and process SVG template
-    const svgPath = path.resolve("public", "Icon-new.svg");
-    let svgTemplate = await fs.readFile(svgPath, "utf-8");
-    // const svgPath = imageData.image_url;
-    // const svgResponse = await fetch(svgPath);
-    // let svgTemplate = await svgResponse.text();
+    // const svgPath = path.resolve("public", "Icon-1.svg");
+    // let svgTemplate = await fs.readFile(svgPath, "utf-8");
+    const svgPath = imageData.image_url;
+    const svgResponse = await fetch(svgPath);
+    let svgTemplate = await svgResponse.text();
     // Fetch and process base image
     const baseImageResponse = await fetch(shapesData.image);
     if (!baseImageResponse.ok) {

@@ -253,8 +253,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map(
         (image, index) => `
         <div class="image-option" data-id=${image.id}>
-          <img src="${image.image_url}" 
-               data-url="${image.image_url}" 
+          <img src="/Icon-new.svg" 
+               data-url="/Icon-new.svg" 
                data-price="${image.additional_price || 0}"
                alt="Image option" 
                class="image-thumb" 
