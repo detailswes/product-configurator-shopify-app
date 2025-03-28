@@ -127,8 +127,8 @@
 
 .quantity-value {
   margin: 0 0 0 !important;
-  width: 50px;
-  min-width: 50px;
+  width: 50px !important;
+  min-width: 50px !important;
 }
 
 @media (max-width: 768px) {
