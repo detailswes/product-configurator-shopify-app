@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const fontLink = document.createElement('link');
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap';
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
   const loaderHTML = `
   <div id="page-loader" style="
     position: fixed;
@@ -62,15 +66,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                
                >
           <div id="text-overlay" 
-               style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2;">
+               style="position: relative; min-height: 134px; text-align: center; margin-bottom: 20px; z-index: 2; margin-top: 25px;">
             <h1 id="overlay-text-display" 
-                style="font-size: 30px; color: #000000; margin-bottom: 10px; font-family: Tahoma, sans-serif;">
+                style="font-size: 30px; color: #000000; margin-bottom: 5px; font-family: Tahoma, sans-serif;">
               BLUE RIDGE
             </h1>
-            <h2 id="braille-text-display"
-                style="font-size: 30px; color: #000000; font-family: Tahoma, sans-serif;">
-              ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑
-            </h2>
+            <h2 id="braille-text-display" style="font-size: 30px; color: #000000; font-family: 'Noto Sans Symbols 2', sans-serif;">  ⠃⠇⠥⠑ ⠗⠊⠙⠛⠑  </h2>
           </div>
         </div>
       </div>

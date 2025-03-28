@@ -121,7 +121,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     // Fetch and process SVG template
-    // const svgPath = path.resolve("public", "Icon-2.svg");
+    // const svgPath = path.resolve("public", "Icon-1.svg");
     // let svgTemplate = await fs.readFile(svgPath, "utf-8");
     const svgPath = imageData.image_url;
     const svgResponse = await fetch(svgPath);
@@ -147,24 +147,31 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     const INCH_TO_PX = 96;
-   const shapeWidthPx = Math.round(Number(shapesData?.width) * INCH_TO_PX);
-const shapeHeightPx = Math.round(Number(shapesData?.height) * INCH_TO_PX);
+    const shapeWidthPx = Math.round(Number(shapesData?.width) * INCH_TO_PX);
+    const shapeHeightPx = Math.round(Number(shapesData?.height) * INCH_TO_PX);
 
     // Convert base SVG to PNG buffer
     const baseImageBuffer = await sharp(Buffer.from(baseSvg))
-      .resize(shapeWidthPx,shapeHeightPx)
+      .resize(shapeWidthPx, shapeHeightPx)
       .toFormat("png")
       .toBuffer();
 
     // Process SVG template with color
-    svgTemplate = svgTemplate.replace(
-      /fill="[^"]*"/g,
-      `fill="${colorData.hex_value}"`,
-    );
+    // svgTemplate = svgTemplate.replace(
+    //   /fill="[^"]*"/g,
+    //   `fill="${colorData.hex_value}"`,
+    // );
+
+    svgTemplate = svgTemplate.replace(/stroke="[^"]*"/g, `stroke="none"`);
+    svgTemplate = svgTemplate.replace(/fill="[^"]*"/g, (match) => {
+      return match.includes("#231F20")
+        ? `fill="${colorData.hex_value}"`
+        : match;
+    });
 
     // Create overlay buffer
     const overlayBuffer = await sharp(Buffer.from(svgTemplate))
-      .resize(400, 400)
+      .resize(500, 500)
       .toFormat("png")
       .toBuffer();
 
@@ -199,7 +206,7 @@ const shapeHeightPx = Math.round(Number(shapesData?.height) * INCH_TO_PX);
       )
       .join("");
 
-      const textTopOffset = overlayBottom + 113;
+      const textTopOffset = overlayBottom + Math.round(0.375 * INCH_TO_PX);
 
     // Create text SVG
     const svgText = `
